@@ -7,37 +7,83 @@ use App\Models\PermissionRoleModel;
 use App\Models\PermissionModel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
+use App\Http\Controllers\BaseController;
+use Illuminate\Support\Facades\Storage;
 
-class MentalHealthSpecialistController extends Controller
+class MentalHealthSpecialistController extends  BaseController
 {
     // List method with permission checks
-    public function list()
-    {
-        // Check if the user has permission to access the list
-        /* $PermissionRole = PermissionRoleModel::getPermission('MentalHealthSpecialist', Auth::user()->role_id);
-        if (empty($PermissionRole)) {
-            abort(404);
-        }
+public function list(Request $request)
+{
+    $search = $request->input('search');
 
-        // Get permissions for adding, editing, and deleting
-        $data['PermissionAdd'] = PermissionRoleModel::getPermission('Add MentalHealthSpecialist', Auth::user()->role_id);
-        $data['PermissionEdit'] = PermissionRoleModel::getPermission('Edit MentalHealthSpecialist', Auth::user()->role_id);
-        $data['PermissionDelete'] = PermissionRoleModel::getPermission('Delete MentalHealthSpecialist', Auth::user()->role_id);
-         */
-        // Fetch all records
-        $data['getRecord'] = MentalHealthSpecialist::all();
+    // Define the allowed sortable columns
+    $allowedSorts = [
+        'id',
+        'job_title',
+        'department',  // This is your university field
+        'problem',
+        'instructor',
+        'duration',
+        'result',
+        'patient_intro',
+        'education',
+    ];
 
-        return view('panel/MentalHealthSpecialist.list', $data);
+    // Validate and assign sorting parameters
+    $sortBy = in_array($request->get('sort_by'), $allowedSorts) ? $request->get('sort_by') : 'id';
+    $order = $request->get('order') === 'desc' ? 'desc' : 'asc';
+
+    // Build the query
+    $query = MentalHealthSpecialist::query();
+
+    // Apply search filter
+    if ($search) {
+        $query->where(function ($q) use ($search) {
+            $q->where('id', 'like', "%$search%")
+                ->orWhere('job_title', 'like', "%$search%")
+                ->orWhere('department', 'like', "%$search%")  // University field
+                ->orWhere('problem', 'like', "%$search%")
+                ->orWhere('instructor', 'like', "%$search%")
+                ->orWhere('duration', 'like', "%$search%")
+                ->orWhere('result', 'like', "%$search%")
+                ->orWhere('patient_intro', 'like', "%$search%")
+                ->orWhere('education', 'like', "%$search%");
+        });
     }
+
+    // Apply university filter (using department field)
+    if ($request->has('universitym') && $request->universitym != '') {
+        $query->where('department', $request->universitym);
+    }
+
+    // Get unique university values for filter dropdown
+    $universities = MentalHealthSpecialist::distinct()
+        ->orderBy('department')  // Order by university name
+        ->pluck('department');   // Get university names
+
+    // Get the paginated, sorted result
+    $data['getRecord'] = $query
+        ->orderBy($sortBy, $order)
+        ->paginate(2)
+        ->appends([
+            'search' => $search,
+            'sort_by' => $sortBy,
+            'order' => $order,
+            'universitym' => $request->universitym,  // Add university to pagination links
+        ]);
+
+    // Pass university options to the view
+    $data['universities'] = $universities;
+
+    return view('panel.MentalHealthSpecialist.list', $data);
+}
+
 
     // Add method with permission checks
     public function add()
     {
-        // Check if the user has permission to add a new record
-        /*$PermissionRole = PermissionRoleModel::getPermission('Add MentalHealthSpecialist', Auth::user()->role_id);
-        if (empty($PermissionRole)) {
-            abort(404);
-        }*/
 
         return view('panel/MentalHealthSpecialist.add');
     }
@@ -45,11 +91,6 @@ class MentalHealthSpecialistController extends Controller
     // Insert method with validation and permission checks
     public function insert(Request $request)
     {
-        // Check if the user has permission to add a new record
-        /* $PermissionRole = PermissionRoleModel::getPermission('Add MentalHealthSpecialist', Auth::user()->role_id);
-        if (empty($PermissionRole)) {
-            abort(404);
-        }*/
 
         // Validate the incoming data
         $validated = $request->validate([
@@ -61,12 +102,14 @@ class MentalHealthSpecialistController extends Controller
             'result' => 'required|string|max:255',
             'patient_intro' => 'required|string|max:255',
             'education' => 'required|string|max:255',
-            'file' => 'required|file|mimes:pdf,doc,docx',
+            'file' => 'nullable|file|mimes:pdf,doc,docx',
+
 
         ]);
-        $my_file = $request->file('file');
-
-        $path = $my_file->store('uploads', 'public');
+        $path = null;
+        if ($request->hasFile('file')) {
+            $path = $request->file('file')->store('uploads', 'public');
+        }
 
         // Create and store the new record
         MentalHealthSpecialist::create([
@@ -86,14 +129,9 @@ class MentalHealthSpecialistController extends Controller
         return redirect()->route('health.list')->with('success', 'Record added successfully!');
     }
 
-    // Edit method with permission checks
     public function edit($id)
     {
-        // Check if the user has permission to edit the record
-        /*$PermissionRole = PermissionRoleModel::getPermission('Edit MentalHealthSpecialist', Auth::user()->role_id);
-        if (empty($PermissionRole)) {
-            abort(404);
-        }*/
+
 
         $record = MentalHealthSpecialist::findOrFail($id);
         return view('panel/MentalHealthSpecialist.edit', compact('record'));
@@ -102,11 +140,7 @@ class MentalHealthSpecialistController extends Controller
     // Update method with validation and permission checks
     public function update(Request $request, $id)
     {
-        // Check if the user has permission to update the record
-        /*$PermissionRole = PermissionRoleModel::getPermission('Edit MentalHealthSpecialist', Auth::user()->role_id);
-        if (empty($PermissionRole)) {
-            abort(404);
-        }*/
+
 
         // Validate the incoming data
         $validated = $request->validate([
@@ -118,16 +152,22 @@ class MentalHealthSpecialistController extends Controller
             'result' => 'required|string|max:255',
             'patient_intro' => 'required|string|max:255',
             'education' => 'required|string|max:255',
-            'file' => 'required|file|mimes:pdf,doc,docx',
-
-
+            'file' => 'nullable|file|mimes:pdf,doc,docx',
         ]);
-        $my_file = $request->file('file');
 
-        $path = $my_file->store('uploads', 'public');
-
-        // Find the record and update it
         $record = MentalHealthSpecialist::findOrFail($id);
+
+        // Handle file update and delete old file if exists
+        if ($request->hasFile('file')) {
+            if ($record->file && Storage::disk('public')->exists($record->file)) {
+                Storage::disk('public')->delete($record->file);
+            }
+            $validated['file'] = $request->file('file')->store('uploads', 'public');
+        } else {
+            // Keep the old file if no new file uploaded
+            $validated['file'] = $record->file;
+        }
+
         $record->update($validated);
 
         return redirect()->route('health.list')->with('success', 'Record updated successfully!');
@@ -136,18 +176,19 @@ class MentalHealthSpecialistController extends Controller
     // Delete method with permission checks
     public function delete($id)
     {
-        // Check if the user has permission to delete the record
-        /*$PermissionRole = PermissionRoleModel::getPermission('Delete MentalHealthSpecialist', Auth::user()->role_id);
-        if (empty($PermissionRole)) {
-            abort(404);
-        }*/
-
-        // Find the record and delete it
         $record = MentalHealthSpecialist::findOrFail($id);
+
+        // Delete the associated file if it exists
+        if ($record->file) {
+            Storage::disk('public')->delete($record->file);
+        }
+
+        // Delete the database record
         $record->delete();
 
         return redirect()->route('health.list')->with('success', 'Record deleted successfully!');
     }
+
 
     // Show method to display a single record
     public function show($id)
@@ -162,5 +203,19 @@ class MentalHealthSpecialistController extends Controller
     {
         $record = MentalHealthSpecialist::findOrFail($id);
         return view('panel/MentalHealthSpecialist.print', compact('record'));
+    }
+    public function setLanguage($lang)
+    {
+        $availableLanguages = ['en', 'ps', 'fa'];
+
+        if (in_array($lang, $availableLanguages)) {
+            session()->put('locale', $lang);
+            App::setLocale($lang);
+        } else {
+            session()->put('locale', 'en');
+            App::setLocale('en');
+        }
+
+        return redirect()->back();
     }
 }

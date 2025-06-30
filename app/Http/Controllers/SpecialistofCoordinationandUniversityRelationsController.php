@@ -7,46 +7,66 @@ use App\Models\PermissionModel;
 use App\Models\PermissionRoleModel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
+use App\Http\Controllers\BaseController;
+use Illuminate\Support\Facades\Storage;
 
-class SpecialistofCoordinationandUniversityRelationsController extends Controller
+class SpecialistofCoordinationandUniversityRelationsController extends  BaseController
 {
-    public function list()
-    {
-        // Check if the user has permission to access the list
-        /* $PermissionRole = PermissionRoleModel::getPermission('SpecialistofCoordinationandUniversityRelations', Auth::user()->role_id);
-        if (empty($PermissionRole)) {
-            abort(404);
-        }
 
-        // Get permissions for adding, editing, and deleting
-        $data['PermissionAdd'] = PermissionRoleModel::getPermission('Add SpecialistofCoordinationandUniversityRelations', Auth::user()->role_id);
-        $data['PermissionEdit'] = PermissionRoleModel::getPermission('Edit SpecialistofCoordinationandUniversityRelations', Auth::user()->role_id);
-        $data['PermissionDelete'] = PermissionRoleModel::getPermission('Delete SpecialistofCoordinationandUniversityRelations', Auth::user()->role_id);
-          */
-        // Fetch all records
-        $data['getRecord'] = SpecialistofCoordinationandUniversityRelations::all();
+    public function list(Request $request)
+{
+    $search = $request->input('search');
 
-        return view('panel/SpecialistofCoordinationandUniversityRelations.list', $data);
+    // Define allowed sortable columns
+    $allowedSorts = [
+        'id',
+        'activity_name',
+        'activity_date',
+        'report_type',
+        'description',
+        'department',
+    ];
+
+    // Determine the sort field and order
+    $sortBy = in_array($request->get('sort_by'), $allowedSorts) ? $request->get('sort_by') : 'id';
+    $order = $request->get('order') === 'desc' ? 'desc' : 'asc';
+
+    $query = SpecialistofCoordinationandUniversityRelations::query();
+
+    if ($search) {
+        $query->where(function ($q) use ($search) {
+            $q->where('id', 'like', "%$search%")
+              ->orWhere('activity_name', 'like', "%$search%")
+              ->orWhereDate('activity_date', '=', $search)
+              ->orWhere('report_type', 'like', "%$search%")
+              ->orWhere('description', 'like', "%$search%")
+              ->orWhere('department', 'like', "%$search%");
+        });
     }
+
+    // Apply sorting and pagination
+    $data['getRecord'] = $query
+        ->orderBy($sortBy, $order)
+        ->paginate(10)
+        ->appends([
+            'search' => $search,
+            'sort_by' => $sortBy,
+            'order' => $order,
+        ]);
+
+    return view('panel.SpecialistofCoordinationandUniversityRelations.list', $data);
+}
 
     public function add()
     {
-        // Check if the user has permission to add a new record
-        /*$PermissionRole = PermissionRoleModel::getPermission('Add SpecialistofCoordinationandUniversityRelations', Auth::user()->role_id);
-        if (empty($PermissionRole)) {
-            abort(404);
-        }*/
 
         return view('panel/SpecialistofCoordinationandUniversityRelations.add');
     }
 
     public function insert(Request $request)
     {
-        // Check if the user has permission to add a new record
-        /* $PermissionRole = PermissionRoleModel::getPermission('Add SpecialistofCoordinationandUniversityRelations', Auth::user()->role_id);
-        if (empty($PermissionRole)) {
-            abort(404);
-        }*/
+
 
         // dd($request->all());
 
@@ -57,12 +77,14 @@ class SpecialistofCoordinationandUniversityRelationsController extends Controlle
             'report_type' => 'required|string|max:255',
             'description' => 'required|string',
             'department' => 'nullable|string',
-            'file' => 'required|file|mimes:pdf,doc,docx',
+            'file' => 'nullable|file|mimes:pdf,doc,docx',
+
 
         ]);
-        $my_file = $request->file('file');
-
-        $path = $my_file->store('uploads', 'public');
+        $path = null;
+        if ($request->hasFile('file')) {
+            $path = $request->file('file')->store('uploads', 'public');
+        }
         // Create and store the new record
         SpecialistofCoordinationandUniversityRelations::create([
             'activity_name' => $validated['activity_name'],
@@ -79,11 +101,7 @@ class SpecialistofCoordinationandUniversityRelationsController extends Controlle
 
     public function edit($id)
     {
-        // Check if the user has permission to edit the record
-        /*$PermissionRole = PermissionRoleModel::getPermission('Edit SpecialistofCoordinationandUniversityRelations', Auth::user()->role_id);
-        if (empty($PermissionRole)) {
-            abort(404);
-        }*/
+
 
         $record = SpecialistofCoordinationandUniversityRelations::findOrFail($id);
         return view('panel/SpecialistofCoordinationandUniversityRelations.edit', compact('record'));
@@ -91,11 +109,6 @@ class SpecialistofCoordinationandUniversityRelationsController extends Controlle
 
     public function update(Request $request, $id)
     {
-        // Check if the user has permission to update the record
-        /*$PermissionRole = PermissionRoleModel::getPermission('Edit SpecialistofCoordinationandUniversityRelations', Auth::user()->role_id);
-        if (empty($PermissionRole)) {
-            abort(404);
-        }*/
 
         // Validate the incoming data
         $validated = $request->validate([
@@ -104,30 +117,44 @@ class SpecialistofCoordinationandUniversityRelationsController extends Controlle
             'report_type' => 'required|string|max:255',
             'description' => 'required|string',
             'department' => 'nullable|string',
-            'file' => 'required|file|mimes:pdf,doc,docx',
-
+            'file' => 'nullable|file|mimes:pdf,doc,docx',
         ]);
-        $my_file = $request->file('file');
 
-        $path = $my_file->store('uploads', 'public');
-        // Find the record and update it
         $record = SpecialistofCoordinationandUniversityRelations::findOrFail($id);
+
+        // Handle file update and delete old file if exists
+        if ($request->hasFile('file')) {
+            if ($record->file && Storage::disk('public')->exists($record->file)) {
+                Storage::disk('public')->delete($record->file);
+            }
+            $validated['file'] = $request->file('file')->store('uploads', 'public');
+        } else {
+            // Keep the old file if no new file uploaded
+            $validated['file'] = $record->file;
+        }
+
         $record->update($validated);
 
         return redirect()->route('specialist.list')->with('success', 'Record updated successfully!');
     }
-
     public function delete($id)
     {
-        // Find the record and delete it
         $record = SpecialistofCoordinationandUniversityRelations::findOrFail($id);
+
+        if ($record->file) {
+            Storage::disk('public')->delete($record->file);
+        }
+
         $record->delete();
 
         return redirect()->route('specialist.list')->with('success', 'Record deleted successfully!');
     }
 
+
     public function show($id)
     {
+
+
         $record = SpecialistofCoordinationandUniversityRelations::findOrFail($id);
         $file = $record->file;
         return response()->file(storage_path('app/public/' . $file));
@@ -137,5 +164,19 @@ class SpecialistofCoordinationandUniversityRelationsController extends Controlle
     {
         $record = SpecialistofCoordinationandUniversityRelations::findOrFail($id);
         return view('panel/SpecialistofCoordinationandUniversityRelations.print', compact('record'));
+    }
+    public function setLanguage($lang)
+    {
+        $availableLanguages = ['en', 'ps', 'fa'];
+
+        if (in_array($lang, $availableLanguages)) {
+            session()->put('locale', $lang);
+            App::setLocale($lang);
+        } else {
+            session()->put('locale', 'en');
+            App::setLocale('en');
+        }
+
+        return redirect()->back();
     }
 }

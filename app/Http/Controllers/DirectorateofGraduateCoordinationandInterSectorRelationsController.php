@@ -3,128 +3,148 @@
 namespace App\Http\Controllers;
 
 use App\Models\DirectorateofGraduateCoordinationandInterSectorRelations;
-use App\Models\PermissionRoleModel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Log;  // Added for logging
+use App\Http\Controllers\BaseController;
 
-class DirectorateofGraduateCoordinationandInterSectorRelationsController extends Controller
+class DirectorateofGraduateCoordinationandInterSectorRelationsController extends BaseController
 {
-    public function list()
-    {
-        // $data['PermissionAdd'] = PermissionRoleModel::getPermission('Add DirectorateofGraduateCoordinationandInterSectorRelations', Auth::user()->role_id);
-        // $data['PermissionEdit'] = PermissionRoleModel::getPermission('Edit DirectorateofGraduateCoordinationandInterSectorRelations', Auth::user()->role_id);
-        // $data['PermissionDelete'] = PermissionRoleModel::getPermission('Delete DirectorateofGraduateCoordinationandInterSectorRelations', Auth::user()->role_id);
+  public function list(Request $request)
+{
+    $search = $request->input('search');
+    $category = $request->input('category');
+    $sortBy = in_array($request->get('sort_by'), ['title', 'description', 'date']) ? $request->get('sort_by') : 'date';
+    $order = $request->get('order') === 'asc' ? 'asc' : 'desc';
 
-        $data['getRecord'] = DirectorateofGraduateCoordinationandInterSectorRelations::all();
-        return view('panel/DirectorateofGraduateCoordinationandInterSectorRelations.list', $data);
+    $query = DirectorateofGraduateCoordinationandInterSectorRelations::query();
+
+    if ($search) {
+        $query->where(function ($q) use ($search) {
+            $q->where('title', 'like', "%$search%")
+                ->orWhere('description', 'like', "%$search%");
+        });
     }
+
+    if ($category) {
+        $query->where('category', $category);
+    }
+
+    $data['getRecord'] = $query->orderBy($sortBy, $order)->paginate(10);
+    $data['categories'] = ['روابط', 'تفاهنامه', 'SGA', 'اضافی فعالیتونه'];
+
+    return view('panel.DirectorateofGraduateCoordinationandInterSectorRelations.list', $data);
+}
+
 
     public function add()
     {
-        return view('panel/DirectorateofGraduateCoordinationandInterSectorRelations.add');
+        $categories = ['روابط', 'تفاهنامه', 'SGA', 'اضافی فعالیتونه'];
+        return view('panel.DirectorateofGraduateCoordinationandInterSectorRelations.add', compact('categories'));
     }
 
     public function insert(Request $request)
     {
-        // dd($request->all());
         $validated = $request->validate([
-            'responsibility_type' => 'required|string|max:255',
+            'category' => 'required|in:روابط,تفاهنامه,SGA,اضافی فعالیتونه',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'report_frequency' => 'required|string|max:255',
+            'date' => 'required|date',
+            'file' => 'nullable|file|mimes:pdf,doc,docx',
 
-            'file' => 'required|file|mimes:pdf,doc,docx',
-        ]);
-        $my_file = $request->file('file');
-
-        $path = $my_file->store('uploads', 'public');
-        DirectorateofGraduateCoordinationandInterSectorRelations::create([
-            'responsibility_type' => $validated['responsibility_type'],
-            'title' => $validated['title'],
-            'description' => $validated['description'],
-            'report_frequency' => $validated['report_frequency'],
-            'file' => $path,
         ]);
 
+        $path = null;
+        if ($request->hasFile('file')) {
+            $path = $request->file('file')->store('uploads', 'public');
+        }
 
         try {
+
             DirectorateofGraduateCoordinationandInterSectorRelations::create($validated);
+
             return redirect()->route('graduate.list')->with('success', 'Record added successfully!');
         } catch (\Exception $e) {
-            return redirect()->route('graduate.list')->with('error', 'Error occurred: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error occurred: ' . $e->getMessage());
         }
     }
 
     public function edit($id)
     {
-        //  $PermissionRole = PermissionRoleModel::getPermission('Edit DirectorateOfCoordinationAndStudentAffairs', Auth::user()->role_id);
-        //if ($PermissionRole <= 0) {
-        // abort(404);
-        // }
-
         $record = DirectorateofGraduateCoordinationandInterSectorRelations::findOrFail($id);
-        return view('panel/DirectorateofGraduateCoordinationandInterSectorRelations.edit', compact('record'));
+        $categories = ['روابط', 'تفاهنامه', 'SGA', 'اضافی فعالیتونه'];
+        return view('panel.DirectorateofGraduateCoordinationandInterSectorRelations.edit', compact('record', 'categories'));
     }
 
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'responsibility_type' => 'required|string|max:255',
+            'category' => 'required|in:روابط,تفاهنامه,SGA,اضافی فعالیتونه',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'report_frequency' => 'required|string|max:255',
-
-            'file' => 'required|file|mimes:pdf,doc,docx',
-
+            'date' => 'required|date',
+            'file' => 'nullable|file|mimes:pdf,doc,docx',
         ]);
-        $my_file = $request->file('file');
-
-        $path = $my_file->store('uploads', 'public');
-
 
         $record = DirectorateofGraduateCoordinationandInterSectorRelations::findOrFail($id);
 
-        if ($request->hasFile('report_file')) {
-            if ($record->report_file) {
-                Storage::delete('public/' . $record->report_file);
+        if ($request->hasFile('file')) {
+            if ($record->file && \Storage::disk('public')->exists($record->file)) {
+                \Storage::disk('public')->delete($record->file);
             }
-            $validated['report_file'] = $request->file('report_file')->store('reports', 'public');
+            $validated['file'] = $request->file('file')->store('uploads', 'public');
+        } else {
+            $validated['file'] = $record->file;
         }
 
-        try {
-            $record->update($validated);
-            return redirect()->route('graduate.list', $record->id)->with('success', 'Record updated successfully!');
-        } catch (\Exception $e) {
-            return redirect()->route('graduate.list', $record->id)->with('error', 'Error occurred: ' . $e->getMessage());
-        }
+        $record->update($validated);
+
+        return redirect()->route('graduate.list')->with('success', 'Record updated successfully!');
     }
 
     public function delete($id)
     {
         $record = DirectorateofGraduateCoordinationandInterSectorRelations::findOrFail($id);
-        if ($record->report_file) {
-            Storage::delete('public/' . $record->report_file);
-        }
 
         try {
+            if ($record->file && Storage::disk('public')->exists($record->file)) {
+                Storage::disk('public')->delete($record->file);
+            }
+
             $record->delete();
-            return redirect()->route('graduate.list')->with('success', 'Record deleted successfully!');
+            return redirect()->route('graduate.list')->with('success', 'Record and file deleted successfully!');
         } catch (\Exception $e) {
-            return redirect()->route('graduate.list')->with('error', 'Error occurred: ' . $e->getMessage());
+            Log::error('Error deleting record: ' . $e->getMessage());
+            return redirect()->route('graduate.list')->with('error', 'Error occurred while deleting.');
         }
     }
 
     public function show($id)
     {
         $record = DirectorateofGraduateCoordinationandInterSectorRelations::findOrFail($id);
-        $file = $record->file;
-        return response()->file(storage_path('app/public/' . $file));
+        return response()->file(storage_path('app/public/' . $record->file));
     }
 
     public function print($id)
     {
         $record = DirectorateofGraduateCoordinationandInterSectorRelations::findOrFail($id);
-        return view('panel/DirectorateofGraduateCoordinationandInterSectorRelations.print', compact('record'));
+        return view('panel.DirectorateofGraduateCoordinationandInterSectorRelations.print', compact('record'));
+    }
+
+    public function setLanguage($lang)
+    {
+        $availableLanguages = ['en', 'ps', 'fa'];
+
+        if (in_array($lang, $availableLanguages)) {
+            session()->put('locale', $lang);
+            App::setLocale($lang);
+        } else {
+            session()->put('locale', 'en');
+            App::setLocale('en');
+        }
+
+        return redirect()->back();
     }
 }

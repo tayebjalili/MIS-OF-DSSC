@@ -4,17 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use App\Traits\Sortable;
 class DirectorateofGraduateCoordinationandInterSectorRelations extends Model
-{
+{use Sortable;
     use HasFactory;
 
     protected $fillable = [
-        'responsibility_type',
+        'category',
         'title',
         'description',
-        'report_frequency',
-        'report_file',
         'file',
+        'date',
+        'report_frequency'
+    ];
+
+    protected $casts = [
+        'date' => 'date'
     ];
 }

@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('general_database_management', function (Blueprint $table) {
             $table->id();
-            $table->string('student_name');
-            $table->string('student_type');
-            $table->string('skills')->nullable();
-            $table->text('student_info')->nullable();
+            $table->enum('meeting_type', ['شورای معینیت علمی', 'شورای رهبریت علمی']);
+            $table->integer('meeting_number');
+            $table->date('meeting_date');
+            $table->text('description')->nullable();
+            $table->json('agenda_items');
             $table->string('file')->nullable();
             $table->timestamps();
         });

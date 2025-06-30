@@ -3,146 +3,213 @@
 namespace App\Http\Controllers;
 
 use App\Models\AcademicMentorforMedicalSciencesandPracticalProjects;
-use App\Models\PermissionModel;
-use App\Models\PermissionRoleModel;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
+use App\Http\Controllers\BaseController;
 
-class AcademicMentorforMedicalSciencesandPracticalProjectsController extends Controller
+class AcademicMentorforMedicalSciencesandPracticalProjectsController extends BaseController
 {
-    // List method with permission checks
-    public function list()
+    public function list(Request $request)
     {
-        // Check if the user has permission to access the list
-        /*$PermissionRole = PermissionRoleModel::getPermission('AcademicMentorforMedicalSciencesandPracticalProjects', Auth::user()->role_id);
-        if (empty($PermissionRole)) {
-            abort(404);
+        $allowedSorts = ['id', 'student_name', 'job_type', 'start_date']; // whitelist
+        $sortBy = in_array($request->get('sort_by'), $allowedSorts) ? $request->get('sort_by') : 'id';
+        $order = $request->get('order') === 'desc' ? 'desc' : 'asc';
+
+        $search = $request->input('search');
+        $universityName = $request->input('university_name');
+        $internshipCompany = $request->input('internship_company');
+        $faculty = $request->input('faculty');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        // Get distinct values for filter dropdowns
+        $universities = AcademicMentorforMedicalSciencesandPracticalProjects::distinct()
+            ->orderBy('university_name')
+            ->pluck('university_name');
+
+        $companies = AcademicMentorforMedicalSciencesandPracticalProjects::distinct()
+            ->orderBy('internship_company')
+            ->pluck('internship_company');
+
+        $faculties = AcademicMentorforMedicalSciencesandPracticalProjects::distinct()
+            ->orderBy('faculty')
+            ->pluck('faculty');
+
+        // use query builder
+        $query = AcademicMentorforMedicalSciencesandPracticalProjects::query();
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('id', 'like', "%$search%")
+                    ->orWhere('job_type', 'like', "%$search%")
+                    ->orWhere('description', 'like', "%$search%")
+                    ->orWhere('student_name', 'like', "%$search%")
+                    ->orWhere('father_name', 'like', "%$search%")
+                    ->orWhere('faculty', 'like', "%$search%")
+                    ->orWhere('university_name', 'like', "%$search%")
+                    ->orWhere('internship_company', 'like', "%$search%")
+                    ->orWhereDate('start_date', $search)
+                    ->orWhereDate('end_date', $search)
+                    ->orWhere('job_time', 'like', "%$search%")
+                    ->orWhere('report_type', 'like', "%$search%")
+                    ->orWhere('content', 'like', "%$search%")
+                    ->orWhereDate('report_date', $search);
+            });
         }
 
-        // Get permissions for adding, editing, and deleting
-        $data['PermissionAdd'] = PermissionRoleModel::getPermission('Add AcademicMentorforMedicalSciencesandPracticalProjects', Auth::user()->role_id);
-        $data['PermissionEdit'] = PermissionRoleModel::getPermission('Edit AcademicMentorforMedicalSciencesandPracticalProjects', Auth::user()->role_id);
-        $data['PermissionDelete'] = PermissionRoleModel::getPermission('Delete AcademicMentorforMedicalSciencesandPracticalProjects', Auth::user()->role_id);
-         */
-        // Fetch all records
-        $data['getRecord'] = AcademicMentorforMedicalSciencesandPracticalProjects::all();
+        // Apply filters
+        if ($universityName) {
+            $query->where('university_name', $universityName);
+        }
 
-        return view('panel/AcademicMentorforMedicalSciencesandPracticalProjects.list', $data);
+        if ($internshipCompany) {
+            $query->where('internship_company', $internshipCompany);
+        }
+
+        if ($faculty) {
+            $query->where('faculty', $faculty);
+        }
+
+        if ($startDate) {
+            $query->whereDate('start_date', '>=', $startDate);
+        }
+
+        if ($endDate) {
+            $query->whereDate('end_date', '<=', $endDate);
+        }
+
+        // apply orderBy to the filtered query
+        $query->orderBy($sortBy, $order);
+
+        // return paginated results
+        $additionalData = [
+            'getRecord' => $query->paginate(20),
+            'universities' => $universities,
+            'companies' => $companies,
+            'faculties' => $faculties,
+        ];
+
+        return $this->handleSortedIndex(
+            $request,
+            $query,
+            'panel/AcademicMentorforMedicalSciencesandPracticalProjects.list',
+            $additionalData
+        );
     }
 
-    // Add method with permission checks
+
     public function add()
     {
-        // Check if the user has permission to add a new record
-        /* $PermissionRole = PermissionRoleModel::getPermission('Add AcademicMentorforMedicalSciencesandPracticalProjects', Auth::user()->role_id);
-        if (empty($PermissionRole)) {
-            abort(404);
-        }*/
-
         return view('panel/AcademicMentorforMedicalSciencesandPracticalProjects.add');
     }
 
-    // Insert method with validation and permission checks
     public function insert(Request $request)
     {
-        // Check if the user has permission to add a new record
-        /*$PermissionRole = PermissionRoleModel::getPermission('Add AcademicMentorforMedicalSciencesandPracticalProjects', Auth::user()->role_id);
-        if (empty($PermissionRole)) {
-            abort(404);
-        }*/
-
-        // Validate the incoming data
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'objective' => 'nullable|string',
-            'specialized_duties' => 'nullable|string',
-            'managerial_duties' => 'nullable|string',
-            'coordination_duties' => 'nullable|string',
-            'summary' => 'nullable|string',
-            'file' => 'required|file|mimes:pdf,doc,docx',
+            'job_type' => 'required|string|max:255',
+            'description' => 'nullable|string|max:255',
+            'student_name' => 'required|string|max:255',
+            'father_name' => 'required|string|max:255',
+            'faculty' => 'required|string|max:255',
+            'university_name' => 'required|string|max:255',
+            'internship_company' => 'required|string|max:255',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date',
+            'job_time' => 'required|in:Part-Time,Full-Time',
+            'report_type' => 'nullable|string|max:1000',
+            'content' => 'nullable|string|max:1000',
+            'report_date' => 'nullable|date',
+            'file' => 'nullable|file|mimes:pdf,doc,docx',
 
         ]);
-        $my_file = $request->file('file');
 
-        $path = $my_file->store('uploads', 'public');
+        // $my_file = $request->file('file');
+        // $path = $my_file->store('uploads', 'public');
+        $path = null;
+        if ($request->hasFile('file')) {
+            $path = $request->file('file')->store('uploads', 'public');
+        }
 
-        // Create and store the new record
         AcademicMentorforMedicalSciencesandPracticalProjects::create([
-
-            'title' => $validated['title'],
-            'objective' => $validated['objective'],
-            'specialized_duties' => $validated['specialized_duties'],
-            'managerial_duties' => $validated['managerial_duties'],
-            'coordination_duties' => $validated['coordination_duties'],
-            'summary' => $validated['summary'],
+            'job_type' => $validated['job_type'],
+            'description' => $validated['description'],
+            'student_name' => $validated['student_name'],
+            'father_name' => $validated['father_name'],
+            'faculty' => $validated['faculty'],
+            'university_name' => $validated['university_name'],
+            'internship_company' => $validated['internship_company'],
+            'start_date' => $validated['start_date'],
+            'end_date' => $validated['end_date'],
+            'job_time' => $validated['job_time'],
+            'report_type' => $validated['report_type'],
+            'content' => $validated['content'],
+            'report_date' => $validated['report_date'],
             'file' => $path,
         ]);
-
-
 
         return redirect()->route('academic.list')->with('success', 'Record added successfully!');
     }
 
-    // Edit method with permission checks
-    public function edit($id)
+   public function edit($id)
     {
-        // Check if the user has permission to edit the record
-        /* $PermissionRole = PermissionRoleModel::getPermission('Edit AcademicMentorforMedicalSciencesandPracticalProjects', Auth::user()->role_id);
-        if (empty($PermissionRole)) {
-            abort(404);
-        }*/
-
         $record = AcademicMentorforMedicalSciencesandPracticalProjects::findOrFail($id);
         return view('panel/AcademicMentorforMedicalSciencesandPracticalProjects.edit', compact('record'));
     }
 
-    // Update method with validation and permission checks
+
     public function update(Request $request, $id)
     {
-        // Check if the user has permission to update the record
-        /* $PermissionRole = PermissionRoleModel::getPermission('Edit AcademicMentorforMedicalSciencesandPracticalProjects', Auth::user()->role_id);
-        if (empty($PermissionRole)) {
-            abort(404);
-        }*/
-
-        // Validate the incoming data
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'objective' => 'nullable|string',
-            'specialized_duties' => 'nullable|string',
-            'managerial_duties' => 'nullable|string',
-
-            'coordination_duties' => 'nullable|string',
-            'summary' => 'nullable|string',
-            'file' => 'required|file|mimes:pdf,doc,docx',
+            'job_type' => 'required|string|max:255',
+            'description' => 'nullable|string|max:255',
+            'student_name' => 'required|string|max:255',
+            'father_name' => 'required|string|max:255',
+            'faculty' => 'required|string|max:255',
+            'university_name' => 'required|string|max:255',
+            'internship_company' => 'required|string|max:255',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date',
+            'job_time' => 'required|in:Part-Time,Full-Time',
+            'report_type' => 'nullable|string|max:1000',
+            'content' => 'nullable|string|max:1000',
+            'report_date' => 'nullable|date',
+            'file' => 'nullable|file|mimes:pdf,doc,docx',
         ]);
-        $my_file = $request->file('file');
 
-        $path = $my_file->store('uploads', 'public');
-        // Find the record and update it
         $record = AcademicMentorforMedicalSciencesandPracticalProjects::findOrFail($id);
+
+        // Handle file update and delete old file if exists
+        if ($request->hasFile('file')) {
+            if ($record->file && \Storage::disk('public')->exists($record->file)) {
+                \Storage::disk('public')->delete($record->file);
+            }
+            $validated['file'] = $request->file('file')->store('uploads', 'public');
+        } else {
+            // Keep the old file if no new file uploaded
+            $validated['file'] = $record->file;
+        }
+
         $record->update($validated);
 
         return redirect()->route('academic.list')->with('success', 'Record updated successfully!');
     }
 
-    // Delete method with permission checks
     public function delete($id)
     {
-        // Check if the user has permission to delete the record
-        /* $PermissionRole = PermissionRoleModel::getPermission('Delete AcademicMentorforMedicalSciencesandPracticalProjects', Auth::user()->role_id);
-        if (empty($PermissionRole)) {
-            abort(404);
-        }*/
-
-        // Find the record and delete it
         $record = AcademicMentorforMedicalSciencesandPracticalProjects::findOrFail($id);
+
+        // Delete associated file
+        if ($record->file && Storage::disk('public')->exists($record->file)) {
+            Storage::disk('public')->delete($record->file);
+        }
+
         $record->delete();
 
-        return redirect()->route('academic.list')->with('success', 'Record deleted successfully!');
+        return redirect()->route('academic.list')->with('success', 'Record and file deleted successfully!');
     }
 
-    // Show method to display a single record
     public function show($id)
     {
         $record = AcademicMentorforMedicalSciencesandPracticalProjects::findOrFail($id);
@@ -150,12 +217,24 @@ class AcademicMentorforMedicalSciencesandPracticalProjectsController extends Con
         return response()->file(storage_path('app/public/' . $file));
     }
 
-
-
-    // Print method to print a record
     public function print($id)
     {
         $record = AcademicMentorforMedicalSciencesandPracticalProjects::findOrFail($id);
         return view('panel/AcademicMentorforMedicalSciencesandPracticalProjects.print', compact('record'));
+    }
+
+    public function setLanguage($lang)
+    {
+        $availableLanguages = ['en', 'ps', 'fa'];
+
+        if (in_array($lang, $availableLanguages)) {
+            session()->put('locale', $lang);
+            App::setLocale($lang);
+        } else {
+            session()->put('locale', 'en');
+            App::setLocale('en');
+        }
+
+        return redirect()->back();
     }
 }

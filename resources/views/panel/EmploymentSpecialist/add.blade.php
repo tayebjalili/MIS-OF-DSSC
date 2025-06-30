@@ -1,11 +1,7 @@
 @extends('panel.layouts.app')
+
 @section('style')
 <style>
-    .card {
-        border: 1px solid #ccc;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-    }
-
     .form-label {
         font-weight: 600;
         color: #333;
@@ -21,108 +17,146 @@
     }
 </style>
 @endsection
+
 @section('content')
-<div class="pagetitle">
-    <h1> Add New Record </h1>
+<div class="pagetitle mb-4">
+    <h1>{{ __('messages.add_new_record') }}</h1>
 </div>
 
 <section class="section">
     <div class="row">
         <div class="col-lg-9">
+            <form action="{{ route('employment.insert') }}" method="POST" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-sm">
+                {{ csrf_field() }}
 
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Add New Record </h5>
-
-                    <form action="{{ route('employment.insert') }}" method="POST" enctype="multipart/form-data">
-                        {{ csrf_field()}}
-
-                        <!-- Name Field -->
-                        <div class="row mb-3">
-                            <label for="inputText" class="col-sm-12 col-form-label">Name</label>
-                            <div class="col-sm-12">
-                                <input type="text" name="name" required class="form-control">
-                            </div>
-                        </div>
-
-                        <!-- Father's Name Field -->
-                        <div class="row mb-3">
-                            <label for="inputText" class="col-sm-12 col-form-label">Father's Name</label>
-                            <div class="col-sm-12">
-                                <input type="text" name="father_name" class="form-control">
-                            </div>
-                        </div>
-
-                        <!-- Orientation Notes Field -->
-                        <div class="row mb-3">
-                            <label for="inputText" class="col-sm-12 col-form-label">Orientation Notes</label>
-                            <div class="col-sm-12">
-                                <input type="text" name="orientation_notes" class="form-control">
-                            </div>
-                        </div>
-
-                        <!-- Contracts Signed With Field -->
-                        <div class="row mb-3">
-                            <label for="inputText" class="col-sm-12 col-form-label">Contracts Signed With</label>
-                            <div class="col-sm-12">
-                                <input type="text" name="contracts_signed_with" class="form-control">
-                            </div>
-                        </div>
-
-                        <!-- Students Referred For Jobs Field -->
-                        <div class="row mb-3">
-                            <label for="inputText" class="col-sm-12 col-form-label">Students Referred For Jobs</label>
-                            <div class="col-sm-12">
-                                <input type="text" name="students_referred_for_jobs" class="form-control">
-                            </div>
-                        </div>
-
-                        <!-- Training Sessions Field -->
-                        <div class="row mb-3">
-                            <label for="inputText" class="col-sm-12 col-form-label">Training Sessions</label>
-                            <div class="col-sm-12">
-                                <input type="text" name="training_sessions" class="form-control">
-                            </div>
-                        </div>
-
-                        <!-- Partner Organizations Field -->
-                        <div class="row mb-3">
-                            <label for="inputText" class="col-sm-12 col-form-label">Partner Organizations</label>
-                            <div class="col-sm-12">
-                                <input type="text" name="partner_organizations" class="form-control">
-                            </div>
-                        </div>
-
-                        <!-- Monthly Report Field -->
-                        <div class="row mb-3">
-                            <label for="inputText" class="col-sm-12 col-form-label">Monthly Report</label>
-                            <div class="col-sm-12">
-                                <input type="text" name="monthly_report" class="form-control">
-                            </div>
-                        </div>
-
-                        <!-- Phone Number Field -->
-                        <div class="row mb-3">
-                            <label for="inputText" class="col-sm-12 col-form-label">Phone Number</label>
-                            <div class="col-sm-12">
-                                <input type="text" name="phone_number" class="form-control">
-                            </div>
-                        </div>
-
-
-                        <div class="row mb-3">
-                            <label for="file" class="col-sm-12 col-form-label">Upload file</label>
-                            <div class="col-sm-12">
-                                <input type="file" name="file" required class="form-control">
-                            </div>
-                        </div>
-
-
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                    </form>
+                <!-- Name -->
+                <div class="mb-3">
+                    <label class="form-label">{{ __('messages.name') }}</label>
+                    <input type="text" name="name" required class="form-control">
                 </div>
-            </div>
+
+                <!-- Father's Name -->
+                <div class="mb-3">
+                    <label class="form-label">{{ __('messages.father_name') }}</label>
+                    <input type="text" name="father_name" class="form-control">
+                </div>
+
+                <!-- Orientation Notes -->
+                <div class="mb-3">
+                    <label class="form-label">{{ __('messages.id canqor') }}</label>
+                    <input type="text" name="id_canqor" class="form-control">
+                </div>
+
+                <!-- Contracts Signed With -->
+                <div class="mb-3">
+                    <label class="form-label">{{ __('messages.province') }}</label>
+                    <input type="text" name="province" class="form-control">
+                </div>
+
+                <!-- Students Referred For Jobs -->
+                <div class="mb-3">
+                    <label class="form-label">{{ __('messages.university') }}</label>
+                    <input type="text" name="university" class="form-control">
+                </div>
+
+                <!-- Training Sessions -->
+                <div class="mb-3">
+                    <label class="form-label">{{ __('messages.faculty') }}</label>
+                    <input type="text" name="faculty" class="form-control">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ __('messages.Department') }}</label>
+                    <input type="text" name="department" class="form-control">
+                </div>
+
+                <!-- Partner Organizations -->
+                <div class="mb-3">
+                    <label class="form-label">{{ __('messages.organization') }}</label>
+                    <input type="text" name="organization" class="form-control">
+                </div>
+
+                <!-- Monthly Report -->
+                <div class="mb-3">
+                    <label class="form-label">{{ __('messages.graduated_year') }}</label>
+                    <input type="text" id="graduated_year" name="graduated_year" class="form-control">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ __('messages.percentage') }}</label>
+                    <input type="text" name="percentage" class="form-control">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ __('messages.email') }}</label>
+                    <input type="text" name="email" class="form-control">
+                </div>
+
+                <!-- Phone Number -->
+                <div class="mb-3">
+                    <label class="form-label">{{ __('messages.phone_number') }}</label>
+                    <input type="text" name="phone_number" class="form-control">
+                </div>
+
+                <!-- Upload File -->
+                <div class="mb-3">
+                    <label class="form-label">{{ __('messages.upload_file') }}</label>
+                    <input type="file" name="file" class="form-control" id="file">
+                </div>
+
+                <button type="submit" class="btn btn-primary">{{ __('messages.submit') }}</button>
+            </form>
         </div>
     </div>
 </section>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://unpkg.com/persian-date@latest/dist/persian-date.min.js"></script>
+<script src="https://unpkg.com/persian-datepicker@latest/dist/js/persian-datepicker.min.js"></script>
+
+<!-- Initialize Datepickers -->
+
+<script>
+    $(document).ready(function() {
+        // Define a custom locale with your months and weekdays
+        persianDate.toLocale('custom', {
+            months: {
+                full: ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
+                    "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"
+                ],
+                short: ["فر", "ارد", "خرد", "تیر", "مر", "شهر",
+                    "مهر", "آب", "آذر", "دی", "بهم", "اسف"
+                ]
+            },
+            days: {
+                full: ["شنبه", "یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنج‌شنبه", "جمعه"],
+                short: ["ش", "ی", "د", "س", "چ", "پ", "ج"]
+            }
+        });
+
+        // Initialize start_date picker
+        $("#graduated_year").pDatepicker({
+            calendar: {
+                persian: {
+                    locale: 'custom', // use the custom locale here
+                    showHint: true
+                }
+            },
+            theme: 'default',
+            format: 'YYYY/MM/DD',
+            autoClose: true,
+            initialValue: false,
+            toolbox: {
+                calendarSwitch: {
+                    enabled: false
+                }
+            },
+            observer: true,
+            altField: '#graduated_year_alt'
+        });
+
+        // Initialize end_date picker
+
+    });
+</script>
 @endsection

@@ -4,19 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use App\Traits\Sortable;
 class SpecialistofSkillDevelopment extends Model
 {
+    use Sortable;
     use HasFactory;
+
     protected $fillable = [
-        'id',
-        'title',
-        'type',
-        'description',
-        'day_report',
-        'weakly_report',
-        'monthly_report',
-        'year_report',
+        'student_name',
+        'father_name',
+        'university',
+        'faculty',
+        'national_id',
+        'invention_type',
+        'invention_place',
+        'expense',
+        'completion_status',
+        'incompletion_reason',
         'file',
     ];
 }

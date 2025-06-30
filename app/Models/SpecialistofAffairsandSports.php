@@ -4,21 +4,24 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use App\Traits\Sortable;
 class SpecialistofAffairsandSports extends Model
-{
+{use Sortable;
     use HasFactory;
     protected $fillable = [
         'id',
-        'activity_name',
+        'activity_title',
         'description',
-        'activity_date',
-        'team_name',
+        'start_date',
+        'end_date',
+        'sports_teams',
         'sport_type',
-        'coach_name',
-        'report_type',
+        'baget',
+        'activity_established_research_findings',
+
+        'considerations',
         'content',
-        'report_date',
+
         'file',
     ];
 }

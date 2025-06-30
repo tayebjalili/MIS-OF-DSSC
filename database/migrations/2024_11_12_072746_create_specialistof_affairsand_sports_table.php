@@ -13,15 +13,17 @@ return new class extends Migration
     {
         Schema::create('specialistof_affairsand_sports', function (Blueprint $table) {
             $table->id();
-            $table->string('activity_name');
-            $table->text('description');
-            $table->date('activity_date');
-            $table->string('team_name');
+            $table->string('activity_title');
+            $table->string('description');
+            $table->date('start_date');
+            $table->date('end_date');
+            $table->string('sports_teams');
             $table->string('sport_type');
-            $table->string('coach_name');
-            $table->string('report_type'); // daily, weekly, monthly, yearly
-            $table->text('content');
-            $table->date('report_date');
+            $table->string('baget');
+            $table->string('activity_established_research_findings');
+            $table->string('considerations');
+            $table->string('content');
+
             $table->string('file')->nullable();
 
             $table->timestamps();

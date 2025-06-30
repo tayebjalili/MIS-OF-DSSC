@@ -14,14 +14,10 @@ return new class extends Migration
         Schema::create('directorateof_cultural_socialand_sports_services', function (Blueprint $table) {
             $table->id();
             $table->string('job_title');
-            $table->text('location');
-            $table->date('reports_to');
-            $table->date('position_code');
-            $table->text('date_of_review');
-            $table->string('qualifications');
-            $table->date('skills');
-            $table->string('additional_notes');
-            $table->string('file');
+            $table->string('location');
+            $table->string('reports_to');
+            $table->string('essential_notes');
+            $table->string('file')->nullable();
             $table->timestamps();
         });
     }

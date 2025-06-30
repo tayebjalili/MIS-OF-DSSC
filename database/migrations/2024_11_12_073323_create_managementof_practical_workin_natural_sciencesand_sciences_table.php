@@ -15,13 +15,13 @@ return new class extends Migration
             $table->id();
             $table->string('full_name');
             $table->string('father_name')->nullable();
-            $table->string('field_of_study');
+            $table->string('field_of_study')->nullable();
             $table->string('university');
             $table->string('internship_organization');
-            $table->string('internship_duration');
-            $table->string('internship_type');
+            $table->date('internship_duration');
+            $table->date('internship_type');
             $table->string('research_topic');
-            $table->year('graduation_year');
+            $table->string('graduation_year');
             $table->string('file')->nullable();
 
             $table->timestamps();

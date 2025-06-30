@@ -14,9 +14,11 @@ return new class extends Migration
         Schema::create('specialistof_cultural_services', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->text('description');
-            $table->date('event_date');
+            $table->string('description');
+            $table->date('start_date');
+            $table->date('end_date');
             $table->string('report_type');
+            $table->string('report_explination');
             $table->string('file')->nullable();
             $table->timestamps();
         });

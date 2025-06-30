@@ -7,36 +7,50 @@ use App\Models\RoleModel;
 use App\Models\PermissionModel;
 use App\Models\PermissionRoleModel;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\App;
+use App\Http\Controllers\BaseController;
 
-class RoleController extends Controller
+class RoleController extends  BaseController
 {
-    public function list()
+  public function list(Request $request)
+{
+    $search = $request->input('search');
+    $sortBy = $request->input('sort_by', 'id');    // Default sort column: id
+    $order = $request->input('order', 'asc');      // Default order: ascending
 
-    {
-        // $PermissionRole = PermissionRoleModel::getPermission('Role', Auth::user()->role_id);
-        // if (empty($PermissionRole)) {
-        //     abort(404);
-        // }
+    $query = RoleModel::query();
 
-
-        // $data['PermissionAdd'] = PermissionRoleModel::getPermission('Add Role', Auth::user()->role_id);
-        // $data['PermissionEdit'] = PermissionRoleModel::getPermission('Edit Role', Auth::user()->role_id);
-        // $data['PermissionDelete'] = PermissionRoleModel::getPermission('Delete Role', Auth::user()->role_id);
-
-
-
-        $data['getRecord'] = RoleModel::getRecord();
-
-        return view('panel.roles.list', $data);
+    if ($search) {
+        $query->where(function ($q) use ($search) {
+            $q->where('name', 'like', "%$search%")
+              ->orWhere('id', 'like', "%$search%");
+        });
     }
+
+    // Apply sorting only if the column is allowed
+    if (in_array($sortBy, ['id', 'name'])) {
+        $query->orderBy($sortBy, $order);
+    }
+
+    // Paginate results
+    $data['getRecord'] = $query->paginate(10)->appends([
+        'search' => $search,
+        'sort_by' => $sortBy,
+        'order' => $order,
+    ]);
+
+    // Pass current sort parameters to view for UI state (like arrows)
+    $data['currentSortBy'] = $sortBy;
+    $data['currentOrder'] = $order;
+
+    return view('panel.roles.list', $data);
+}
+
+
 
     public function add()
     {
-        // $PermissionRole = PermissionRoleModel::getPermission('Add Role', Auth::user()->role_id);
 
-        // if (empty($PermissionRole)) {
-        //     abort(404);
-        // }
         $getPermissionModel = PermissionModel::getRecord();
         $data['getPermission'] = $getPermissionModel; // Corrected line
         return view('panel.roles.add', $data);
@@ -44,16 +58,13 @@ class RoleController extends Controller
 
     public function insert(Request $request)
     {
-        // $PermissionRole = PermissionRoleModel::getPermission('Add Role', Auth::user()->role_id);
-        // if (empty($PermissionRole)) {
-        //     abort(404);
-        // }
 
 
-        // $validPermissions = PermissionModel::whereIn('id', $request->permission_id)->pluck('id')->toArray();
-        // if (count($validPermissions) !== count($request->permission_id)) {
-        //     return redirect()->back()->withErrors('Some selected permissions are invalid.');
-        // }
+
+        $validPermissions = PermissionModel::whereIn('id', $request->permission_id)->pluck('id')->toArray();
+        if (count($validPermissions) !== count($request->permission_id)) {
+            return redirect()->back()->withErrors('Some selected permissions are invalid.');
+        }
 
 
 
@@ -69,23 +80,24 @@ class RoleController extends Controller
 
     public function edit($id)
     {
-        // $PermissionRole = PermissionRoleModel::getPermission(' Edit Role', Auth::user()->role_id);
-        // if (empty($PermissionRole)) {
-        //     abort(404);
-        // }
-        $data['getRecord'] = RoleModel::getSingle($id);
-        $data['getPermission'] = PermissionModel::getRecord();
-        $data['getRolePermission'] = PermissionRoleModel::getRolePermission($id);
+
+
+        // Fetch the role record
+        $data['getRecord'] = RoleModel::findOrFail($id);  // Using findOrFail to ensure the record exists
+
+        // Get all permissions, grouped by 'groupby'
+        $data['getPermission'] = PermissionModel::all()->groupBy('groupby'); // Group permissions by 'groupby'
+
+        // Get permissions already assigned to the role
+        $data['getRolePermission'] = PermissionRoleModel::where('role_id', $id)->get(); // Fetch role's permissions
 
         return view('panel.roles.edit', $data);
     }
+
     public function update($id, Request $request)
     {
 
-        // $PermissionRole = PermissionRoleModel::getPermission('Edit Role', Auth::user()->role_id);
-        // if (empty($PermissionRole)) {
-        //     abort(404);
-        // }
+
         $save = RoleModel::getSingle($id);
         $save->name = $request->name;
         $save->save();
@@ -101,12 +113,22 @@ class RoleController extends Controller
     public function delete($id)
     {
 
-        // $PermissionRole = PermissionRoleModel::getPermission(' Delete Role', Auth::user()->role_id);
-        // if (!empty($PermissionRole)) {
-        //     abort(404);
-        // }
         $save = RoleModel::getSingle($id);
         $save->delete();
         return redirect('panel/roles')->with('success', 'Role sucessfully deleted');
+    }
+    public function setLanguage($lang)
+    {
+        $availableLanguages = ['en', 'ps', 'fa'];
+
+        if (in_array($lang, $availableLanguages)) {
+            session()->put('locale', $lang);
+            App::setLocale($lang);
+        } else {
+            session()->put('locale', 'en');
+            App::setLocale('en');
+        }
+
+        return redirect()->back();
     }
 }

@@ -13,10 +13,18 @@ return new class extends Migration
     {
         Schema::create('directorateof_coordination_and_student_affairs', function (Blueprint $table) {
             $table->id();
-            $table->string('job_title');
-            $table->text('description');
+            $table->text('academic_institution_name')->nullable();
+            $table->text('relevant_management_in_universities')->nullable();
+            $table->text('creative_students_intro')->nullable();
+            $table->text('cV_writing')->nullable();
+            $table->text('new_students_orientation')->nullable();
 
-            $table->enum('year_report', ['Daily', 'Weekly', 'Monthly', 'Annually', 'As needed']);
+            $table->text('honor_students_encouragement')->nullable();
+
+
+            $table->text('short_term_courses_credits')->nullable();
+            $table->text('disabled_students')->nullable();
+
             $table->string('file')->nullable();
             $table->timestamps();
         });

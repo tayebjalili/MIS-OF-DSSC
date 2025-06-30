@@ -18,12 +18,13 @@ return new class extends Migration
             $table->string('university');
             $table->string('faculty');
             $table->string('department');
-            $table->string('grades'); // Change back to string if grades are letters like 'A', 'B', etc.
+            $table->string('id_conqor'); // Change back to string if grades are letters like 'A', 'B', etc.
             $table->decimal('percentage', 5, 2);
-            $table->year('year');
-            $table->decimal('final_percentage', 5, 2)->nullable(); // Allow null if not provided
+            $table->string('start_year');
+            $table->string('graduated_year');
+            $table->string('observations')->nullable(); // Allow null if not provided
             $table->string('phone_number')->nullable(); // Allow nullable phone number
-            $table->string('photo')->nullable(); // Allow nullable for storing photo file path
+            $table->string('email')->nullable(); // Allow nullable for storing photo file path
             $table->string('looks')->nullable(); // Nullable if not always provided
             $table->string('file')->nullable();
             $table->timestamps();

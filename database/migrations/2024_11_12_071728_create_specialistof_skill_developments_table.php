@@ -13,14 +13,21 @@ return new class extends Migration
     {
         Schema::create('specialistof_skill_developments', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->text('type');
-            $table->text('description');
-            $table->text('day_report');
-            $table->text('weakly_report');
-            $table->text('monthly_report');
-            $table->text('year_report');
-            $table->string('file')->nullable();
+
+            // Inventor-specific fields
+            $table->string('student_name');
+            $table->string('father_name');
+            $table->string('university');
+            $table->string('faculty');
+            $table->string('national_id');
+            $table->string('invention_type');
+            $table->string('invention_place');
+            $table->string('expense')->nullable(); // Cost of the invention/project
+            $table->string('completion_status'); // e.g., Completed or Not Completed
+            $table->string('incompletion_reason')->nullable(); // If not completed, why?
+
+            $table->string('file')->nullable(); // Optional file upload (like project file/report)
+
             $table->timestamps();
         });
     }

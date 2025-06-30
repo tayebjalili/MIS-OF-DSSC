@@ -1,46 +1,59 @@
 @extends('panel.layouts.app')
+
 @section('style')
 <style>
-    .card {
-        border: 1px solid #e1e4e8;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        border-radius: 8px;
-        padding: 20px;
-        margin: 15px 0;
-        background-color: #ffffff;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    /* Flat style without card shadows */
+    .pagetitle {
+        text-align: center;
+        margin-bottom: 30px;
     }
 
-    .card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    form {
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 20px;
+        max-width: 700px;
+        margin: 0 auto 30px auto;
+        border: 1px solid #e1e4e8;
     }
 
     .form-label {
         font-weight: 600;
         color: #333;
         margin-bottom: 8px;
+        display: block;
     }
 
     .form-control {
         border-radius: 6px;
         padding: 12px;
         border: 1px solid #ccc;
+        width: 100%;
+        font-size: 1rem;
         transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        resize: vertical;
     }
 
     .form-control:focus {
         border-color: #0066cc;
         box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
+        outline: none;
     }
 
     .btn-primary {
         background-color: #0066cc;
-        border-color: #0066cc;
+        border: none;
         padding: 12px 24px;
         border-radius: 6px;
         font-weight: 600;
+        font-size: 1rem;
+        color: #fff;
+        cursor: pointer;
         transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        display: block;
+        width: 100%;
+        max-width: 200px;
+        margin: 20px auto 0 auto;
     }
 
     .btn-primary:hover {
@@ -48,28 +61,14 @@
         box-shadow: 0 4px 8px rgba(0, 86, 179, 0.2);
     }
 
-    .card-title {
-        font-size: 1.5rem;
-        color: #444;
-        margin-bottom: 20px;
-    }
-
     .row.mb-3 {
         margin-bottom: 1.5rem;
     }
 
     @media (max-width: 768px) {
-        .card {
+        form {
             padding: 15px;
-        }
-
-        .btn-primary {
-            width: 100%;
-            padding: 12px;
-        }
-
-        .form-control {
-            padding: 10px;
+            margin: 0 15px 30px 15px;
         }
     }
 </style>
@@ -77,95 +76,66 @@
 
 @section('content')
 <div class="pagetitle">
-    <h1>Edit Executive Management Record</h1>
+    <h1>{{ __('messages.edit_record') }}</h1>
 </div>
 
 <section class="section">
-    <div class="row">
-        <div class="col-lg-9">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Edit Record</h5>
+    <form action="{{ route('executive.update', $record->id) }}" method="POST" enctype="multipart/form-data">
+        @csrf
 
-                    <form action="{{ route('executive.update', $record->id) }}" method="POST" enctype="multipart/form-data">
-                        {{ csrf_field() }}
+        <div class="row mb-3">
+            <label class="form-label">{{ __('messages.job_objective') }}</label>
+            <textarea name="job_objective" class="form-control" required>{{ $record->job_objective }}</textarea>
+        </div>
 
-                        <!-- Job Objective -->
-                        <div class="row mb-3">
-                            <label class="col-sm-12 col-form-label">Job Objective</label>
-                            <div class="col-sm-12">
-                                <textarea type="text" name="job_objective" class="form-control" required>{{ $record->job_objective }}</textarea>
-                            </div>
-                        </div>
+        <div class="row mb-3">
+            <label class="form-label">{{ __('messages.description') }}</label>
+            <textarea name="description" class="form-control" required>{{ $record->description }}</textarea>
+        </div>
 
-                        <!-- Description -->
-                        <div class="row mb-3">
-                            <label class="col-sm-12 col-form-label">Description</label>
-                            <div class="col-sm-12">
-                                <textarea type="text" name="description" class="form-control" required>{{ $record->description }}</textarea>
-                            </div>
-                        </div>
+        <div class="row mb-3">
+            <label class="form-label">{{ __('messages.report_type') }}</label>
+            <input type="text" name="day_report" class="form-control" value="{{ $record->day_report }}" required>
+        </div>
 
-                        <!-- Day Report Date -->
-                        <div class="row mb-3">
-                            <label class="col-sm-12 col-form-label">Day Report Date</label>
-                            <div class="col-sm-12">
-                                <input type="date" name="day_report" class="form-control" value="{{ $record->day_report }}" required>
-                            </div>
-                        </div>
+        <div class="row mb-3">
+            <label class="form-label">{{ __('messages.report_explination') }}</label>
+            <textarea name="monthly_plan" class="form-control">{{ $record->monthly_plan }}</textarea>
+        </div>
 
-                        <!-- Monthly Plan -->
-                        <div class="row mb-3">
-                            <label class="col-sm-12 col-form-label">Monthly Plan</label>
-                            <div class="col-sm-12">
-                                <textarea type="text" name="monthly_plan" class="form-control">{{ $record->monthly_plan }}</textarea>
-                            </div>
-                        </div>
+        <div class="row mb-3">
+            <label class="form-label">{{ __('messages.correspondence_log') }}</label>
+            <textarea name="correspondence_log" class="form-control">{{ $record->correspondence_log }}</textarea>
+        </div>
 
-                        <!-- Correspondence Log -->
-                        <div class="row mb-3">
-                            <label class="col-sm-12 col-form-label">Correspondence Log</label>
-                            <div class="col-sm-12">
-                                <textarea type="text" name="correspondence_log" class="form-control">{{ $record->correspondence_log }}</textarea>
-                            </div>
-                        </div>
+        <div class="row mb-3">
+            <label class="form-label">{{ __('messages.contact_info') }}</label>
+            <textarea name="contact_info" class="form-control" placeholder="Email addresses, phone numbers, etc.">{{ $record->contact_info }}</textarea>
+        </div>
 
-                        <!-- Contact Info -->
-                        <div class="row mb-3">
-                            <label class="col-sm-12 col-form-label">Contact Info</label>
-                            <div class="col-sm-12">
-                                <textarea type="text" name="contact_info" class="form-control" placeholder="Email addresses, phone numbers, etc.">{{ $record->contact_info }}</textarea>
-                            </div>
-                        </div>
+        <div class="row mb-3">
+            <label class="form-label">{{ __('messages.additional_tasks') }}</label>
+            <textarea name="additional_tasks" class="form-control">{{ $record->additional_tasks }}</textarea>
+        </div>
 
-                        <!-- Additional Tasks -->
-                        <div class="row mb-3">
-                            <label class="col-sm-12 col-form-label">Additional Tasks</label>
-                            <div class="col-sm-12">
-                                <textarea type="text" name="additional_tasks" class="form-control">{{ $record->additional_tasks }}</textarea>
-                            </div>
-                        </div>
 
-                        <!-- File Upload -->
-                        <div class="row mb-3">
-                            <label for="file" class="col-sm-12 col-form-label">Upload File</label>
-                            <div class="col-sm-12">
-                                <input type="file" name="file" class="form-control">
-                            </div>
-                        </div>
-
-                        <!-- Submit Button -->
-                        <div class="row mb-3">
-                            <div class="col-sm-12">
-                                <button type="submit" class="btn btn-primary">Update Record</button>
-                            </div>
-                        </div>
-
-                    </form>
-
+        <div class="row mb-3">
+            <label for="file" class="col-sm-12 col-form-label">{{ __('messages.upload_file') }}</label>
+            <div class="col-sm-12">
+                <input type="file" name="file" class="form-control" id="file">
+                @if($record->file)
+                <input type="hidden" name="old_file_path" value="{{ $record->file }}">
+                <div class="form-text mt-2">
+                    {{ __('messages.current_file') }}:
+                    <a href="{{ asset('storage/' . $record->file) }}" target="_blank">
+                        {{ basename($record->file) }}
+                    </a>
                 </div>
+                @endif
             </div>
         </div>
-    </div>
+
+        <button type="submit" class="btn btn-primary">{{ __('messages.update_record') }}</button>
+    </form>
 </section>
 @endsection

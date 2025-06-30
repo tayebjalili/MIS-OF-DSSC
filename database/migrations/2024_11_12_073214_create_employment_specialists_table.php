@@ -14,15 +14,18 @@ return new class extends Migration
         Schema::create('employment_specialists', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('father_name')->nullable();
-            $table->string('orientation_notes')->nullable(); // New field
-            $table->string('contracts_signed_with')->nullable(); // New field
-            $table->string('students_referred_for_jobs')->nullable(); // New field
-            $table->string('training_sessions')->nullable(); // New field
-            $table->string('partner_organizations')->nullable(); // New field
-            $table->string('monthly_report')->nullable(); // New field
-            $table->string('phone_number')->nullable();
-            $table->string('file')->nullable();
+            $table->string('father_name'); // Fixed spelling
+            $table->string('id_canqor'); // Changed to 'id_canqor'
+            $table->string('province'); // Fixed spelling
+            $table->string('university');
+            $table->string('faculty');
+            $table->string('department');
+            $table->string('organization');
+            $table->string('graduated_year'); // Fixed spacing
+            $table->decimal('percentage', 5, 2); // Assuming percentage can have decimals
+            $table->string('email');
+            $table->string('phone_number'); // Fixed spacing
+            $table->string('file')->nullable(); // Assuming file is a string
 
             $table->timestamps();
         });

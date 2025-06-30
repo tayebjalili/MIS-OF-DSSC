@@ -16,10 +16,10 @@ return new class extends Migration
             $table->string('job_title');
             $table->string('department');
             $table->date('location');
-            $table->text('problem');
-            $table->text('instructor');
-            $table->text('duration');
-            $table->text('result');
+            $table->string('problem');
+            $table->string('instructor');
+            $table->string('duration');
+            $table->string('result');
             $table->string('patient_intro');
             $table->string('education');
             $table->string('file')->nullable();

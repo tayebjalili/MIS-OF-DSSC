@@ -18,15 +18,15 @@ return new class extends Migration
 
             // Job-related fields
             $table->id();
-            $table->text('job_objective')->nullable();
-            $table->text('description')->nullable();
-            $table->date('day_report')->nullable();
+            $table->string('job_objective')->nullable();
+            $table->string('description')->nullable();
+            $table->string('day_report')->nullable();
             $table->string('report_file')->nullable();
-            $table->text('monthly_plan')->nullable();
-            $table->text('meeting_notes')->nullable();
-            $table->text('correspondence_log')->nullable();
-            $table->text('contact_info')->nullable();
-            $table->text('additional_tasks')->nullable();
+            $table->string('monthly_plan')->nullable();
+            $table->string('meeting_notes')->nullable();
+            $table->string('correspondence_log')->nullable();
+            $table->string('contact_info')->nullable();
+            $table->string('additional_tasks')->nullable();
             $table->string('file')->nullable();
 
             $table->timestamps();

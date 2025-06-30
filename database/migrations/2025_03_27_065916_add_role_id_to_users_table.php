@@ -12,7 +12,10 @@ class AddRoleIdToUsersTable extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->unsignedBigInteger('role_id')->nullable(); // Add role_id here
+            $table->unsignedBigInteger('role_id')->nullable()->after('password');
+
+            // Add foreign key constraint
+            $table->foreign('role_id')->references('id')->on('roles')->onDelete('set null');
         });
     }
 
@@ -22,7 +25,9 @@ class AddRoleIdToUsersTable extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('role_id'); // Drop role_id on rollback
+            // Drop foreign key first
+            $table->dropForeign(['role_id']);
+            $table->dropColumn('role_id');
         });
     }
 }

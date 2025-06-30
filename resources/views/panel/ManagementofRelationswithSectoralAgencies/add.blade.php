@@ -1,108 +1,156 @@
 @extends('panel.layouts.app')
 @section('content')
 <div class="pagetitle">
-    <h1> Add New Record </h1>
+    <h1>{{ __('messages.Add Record') }}</h1>
 </div>
 
 <section class="section">
     <div class="row">
         <div class="col-lg-9">
 
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Add New Record </h5>
+            <!-- Removed card and card-body -->
 
+            <h5 class="mb-4">{{ __('messages.Add Record') }}</h5>
 
-                    <form action="{{ route('sectoral.insert') }}" method="POST" enctype="multipart/form-data">
-                        {{ csrf_field()}}
+            <form action="{{ route('sectoral.insert') }}" method="POST" enctype="multipart/form-data">
+                {{ csrf_field() }}
 
-                        <div class="row mb-3">
-                            <label for="inputText" class="col-sm-12 col-form-label">Department Name</label>
-                            <div class="col-sm-12">
-                                <input type="text" name="department_name" required class="form-control">
-                            </div>
-                        </div>
-
-                        <!-- sector_name Field -->
-                        <div class="row mb-3">
-                            <label for="inputText" class="col-sm-12 col-form-label">Sector Name</label>
-                            <div class="col-sm-12">
-                                <input type="text" name="sector_name" required class="form-control">
-                            </div>
-                        </div>
-
-                        <!-- University Field -->
-                        <div class="row mb-3">
-                            <label for="inputText" class="col-sm-12 col-form-label">Title</label>
-                            <div class="col-sm-12">
-                                <input type="text" name="title" required class="form-control">
-                            </div>
-                        </div>
-
-                        <!-- partner_institution Field -->
-                        <div class="row mb-3">
-                            <label for="inputText" class="col-sm-12 col-form-label">Partner institution</label>
-                            <div class="col-sm-12">
-                                <input type="text" name="partner_institution" required class="form-control">
-                            </div>
-                        </div>
-
-                        <!-- Department Field -->
-                        <div class="row mb-3">
-                            <label for="inputText" class="col-sm-12 col-form-label">Description</label>
-                            <div class="col-sm-12">
-                                <input type="text" name="description" required class="form-control">
-                            </div>
-                        </div>
-
-                        <!-- date_signed Field -->
-                        <div class="row mb-3">
-                            <label for="inputdate" class="col-sm-12 col-form-label">Date Signed</label>
-                            <div class="col-sm-12">
-                                <input type="date" name="date_signed" required class="form-control">
-                            </div>
-                        </div>
-
-
-                        <div class="row mb-3">
-                            <label for="inputText" class="col-sm-12 col-form-label">Report Type</label>
-                            <div class="col-sm-12">
-                                <input type="text" name="report_type" required class="form-control">
-                            </div>
-                        </div>
-
-                        <!-- content Field -->
-                        <div class="row mb-3">
-                            <label for="inputText" class="col-sm-12 col-form-label">Content</label>
-                            <div class="col-sm-12">
-                                <input type="text" name="content" required class="form-control">
-                            </div>
-                        </div>
-
-
-                        <div class="row mb-3">
-                            <label for="inputdate" class="col-sm-12 col-form-label">Report Date</label>
-                            <div class="col-sm-12">
-                                <input type="date" name="report_date" required class="form-control">
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <label for="file" class="col-sm-12 col-form-label">Upload file</label>
-                            <div class="col-sm-12">
-                                <input type="file" name="file" required class="form-control">
-                            </div>
-                        </div>
-
-
-
-
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                    </form>
-                    </form>
+                <!-- sector_name Field -->
+                <div class="row mb-3">
+                    <label class="col-sm-12 col-form-label">{{ __('messages.Sector Name') }}</label>
+                    <div class="col-sm-12">
+                        <input type="text" name="sector_name" required class="form-control">
+                    </div>
                 </div>
-            </div>
+
+                <!-- Title Field -->
+                <div class="row mb-3">
+                    <label class="col-sm-12 col-form-label">{{ __('messages.Title') }}</label>
+                    <div class="col-sm-12">
+                        <input type="text" name="title" required class="form-control">
+                    </div>
+                </div>
+
+                <!-- Partner institution Field -->
+                <div class="row mb-3">
+                    <label class="col-sm-12 col-form-label">{{ __('messages.Partner institution') }}</label>
+                    <div class="col-sm-12">
+                        <input type="text" name="partner_institution" required class="form-control">
+                    </div>
+                </div>
+
+                <!-- Description Field -->
+                <div class="row mb-3">
+                    <label class="col-sm-12 col-form-label">{{ __('messages.Description') }}</label>
+                    <div class="col-sm-12">
+                        <input type="text" name="description" required class="form-control">
+                    </div>
+                </div>
+
+                <!-- Date Signed Field -->
+                <div class="row mb-3">
+                    <label class="col-sm-12 col-form-label">{{ __('messages.Date Signed') }}</label>
+                    <div class="col-sm-12">
+                        <input type="text" id="date_signed" name="date_signed" required class="form-control">
+                    </div>
+                </div>
+
+                <!-- Report Type Field -->
+                <div class="row mb-3">
+                    <label class="col-sm-12 col-form-label">{{ __('messages.Report Type') }}</label>
+                    <div class="col-sm-12">
+                        <input type="text" name="report_type" required class="form-control">
+                    </div>
+                </div>
+
+                <!-- Report Date Field -->
+                <div class="row mb-3">
+                    <label class="col-sm-12 col-form-label">{{ __('messages.Report Date') }}</label>
+                    <div class="col-sm-12">
+                        <input type="text" id="report_date" name="report_date" required class="form-control">
+                    </div>
+                </div>
+
+                <!-- Upload File Field -->
+                <div class="row mb-3">
+                    <label class="col-sm-12 col-form-label">{{ __('messages.Upload file') }}</label>
+                    <div class="col-sm-12">
+                        <input type="file" name="file" class="form-control" id="file">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">{{ __('messages.Submit') }}</button>
+            </form>
+
         </div>
     </div>
 </section>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://unpkg.com/persian-date@latest/dist/persian-date.min.js"></script>
+<script src="https://unpkg.com/persian-datepicker@latest/dist/js/persian-datepicker.min.js"></script>
+
+<!-- Initialize Datepickers -->
+
+<script>
+    $(document).ready(function() {
+        // Define a custom locale with your months and weekdays
+        persianDate.toLocale('custom', {
+            months: {
+                full: ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
+                    "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"
+                ],
+                short: ["فر", "ارد", "خرد", "تیر", "مر", "شهر",
+                    "مهر", "آب", "آذر", "دی", "بهم", "اسف"
+                ]
+            },
+            days: {
+                full: ["شنبه", "یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنج‌شنبه", "جمعه"],
+                short: ["ش", "ی", "د", "س", "چ", "پ", "ج"]
+            }
+        });
+
+        // Initialize start_date picker
+        $("#date_signed").pDatepicker({
+            calendar: {
+                persian: {
+                    locale: 'custom', // use the custom locale here
+                    showHint: true
+                }
+            },
+            theme: 'default',
+            format: 'YYYY/MM/DD',
+            autoClose: true,
+            initialValue: false,
+            toolbox: {
+                calendarSwitch: {
+                    enabled: false
+                }
+            },
+            observer: true,
+            altField: '#date_signed_alt'
+        });
+        $("#report_date").pDatepicker({
+            calendar: {
+                persian: {
+                    locale: 'custom',
+                    showHint: true
+                }
+            },
+            format: 'YYYY/MM/DD',
+            autoClose: true,
+            initialValue: false,
+            toolbox: {
+                calendarSwitch: {
+                    enabled: false
+                }
+            },
+            observer: true,
+            altField: '#report_date_alt'
+        });
+        // Initialize end_date picker
+
+    });
+</script>
+
 @endsection

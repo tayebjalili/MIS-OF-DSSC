@@ -13,12 +13,19 @@ return new class extends Migration
     {
         Schema::create('academic_mentorfor_medical_sciencesand_practical_projects', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->text('objective')->nullable();
-            $table->text('specialized_duties')->nullable();
-            $table->text('managerial_duties')->nullable();
-            $table->text('coordination_duties')->nullable();
-            $table->text('summary')->nullable();
+            $table->string('job_type'); // e.g., psychological, career, practical work, etc.
+            $table->string('description');
+            $table->string('student_name');
+            $table->string('father_name');
+            $table->string('university_name');
+            $table->string('faculty');
+            $table->string('internship_company');
+            $table->date('start_date');
+            $table->date('end_date');
+            $table->enum('job_time', ['Part-Time', 'Full-Time']);
+            $table->string('report_type'); // daily, weekly, monthly, yearly
+            $table->string('content');
+            $table->date('report_date');
             $table->string('file')->nullable();
             $table->timestamps();
         });

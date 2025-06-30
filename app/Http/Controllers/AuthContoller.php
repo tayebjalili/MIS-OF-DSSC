@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+
 use Hash;
 
-class AuthContoller extends Controller
+class AuthContoller extends  BaseController
 {
     public function login()
     {

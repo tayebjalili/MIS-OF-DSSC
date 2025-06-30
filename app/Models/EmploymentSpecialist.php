@@ -4,22 +4,26 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use App\Traits\Sortable;
 class EmploymentSpecialist extends Model
-{
+{use Sortable;
     use HasFactory;
     protected $fillable = [
-        'id',
         'name',
         'father_name',
-        'orientation_notes',
-        'contracts_signed_with',
-        'students_referred_for_jobs',
-        'training_sessions',
-        'partner_organizations',
-        'monthly_report',
+        'id_canqor',
+        'province',
+        'university',
+        'faculty',
+        'department',
+        'organization',
+        'graduated_year',
+        'percentage',
+        'email',
         'phone_number',
         'file',
+
+
 
     ];
 }

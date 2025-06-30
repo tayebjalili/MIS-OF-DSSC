@@ -3,128 +3,178 @@
 namespace App\Http\Controllers;
 
 use App\Models\GeneralDatabaseManagement;
-use App\Models\PermissionModel;
-use App\Models\PermissionRoleModel;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Storage;
 
-class GeneralDatabaseManagementController extends Controller
+class GeneralDatabaseManagementController extends BaseController
 {
-    public function list()
+    public function list(Request $request)
     {
-        // Check for permission
-        /* $PermissionRole = PermissionRoleModel::getPermission('GeneralDatabaseManagement', Auth::user()->role_id);
-        if (empty($PermissionRole)) {
-            abort(404);
+        $search = $request->input('search');
+
+        // Define allowed sortable columns to prevent SQL injection
+        $allowedSorts = ['id', 'meeting_type', 'meeting_number', 'meeting_date', 'description'];
+
+        // Get sort_by and order from request, set defaults if not present or invalid
+        $sortBy = $request->get('sort_by');
+        if (!in_array($sortBy, $allowedSorts)) {
+            $sortBy = 'meeting_date';  // default sort column
         }
 
-        // Get permissions for Add, Edit, and Delete
-        $data['PermissionAdd'] = PermissionRoleModel::getPermission('Add GeneralDatabaseManagement', Auth::user()->role_id);
-        $data['PermissionEdit'] = PermissionRoleModel::getPermission('Edit GeneralDatabaseManagement', Auth::user()->role_id);
-        $data['PermissionDelete'] = PermissionRoleModel::getPermission('Delete GeneralDatabaseManagement', Auth::user()->role_id);*/
+        $order = $request->get('order') === 'desc' ? 'desc' : 'asc';  // default asc
 
-        // Get records from the model
-        $data['getRecord'] = GeneralDatabaseManagement::all();
+        $query = GeneralDatabaseManagement::query();
 
-        return view('panel/GeneralDatabaseManagement.list', $data);
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('id', 'like', "%$search%")
+                    ->orWhere('meeting_type', 'like', "%$search%")
+                    ->orWhere('meeting_number', 'like', "%$search%")
+                    ->orWhereDate('meeting_date', '=', $search)
+                    ->orWhere('description', 'like', "%$search%")
+                    // Replace the JSON search part with:
+->orWhere(function($q) use ($search) {
+    $records = GeneralDatabaseManagement::all();
+    $matchingIds = [];
+
+    foreach ($records as $record) {
+        $agendaItems = json_decode($record->agenda_items, true);
+        foreach ($agendaItems as $item) {
+            if (str_contains($item['topic'], $search) ||
+                str_contains($item['decision'], $search)) {
+                $matchingIds[] = $record->id;
+                break;
+            }
+        }
     }
+
+    $q->whereIn('id', $matchingIds);
+});
+            });
+        }
+
+        // Apply sorting dynamically
+        $query->orderBy($sortBy, $order);
+
+        $data['getRecord'] = $query->paginate(10)->appends([
+            'sort_by' => $sortBy,
+            'order' => $order,
+            'search' => $search,
+        ]);
+
+        return view('panel.GeneralDatabaseManagement.list', $data);
+    }
+
 
     public function add()
     {
-        //  Check for Add permission
-        /*$PermissionRole = PermissionRoleModel::getPermission('Add GeneralDatabaseManagement', Auth::user()->role_id);
-        if (empty($PermissionRole)) {
-            abort(404);
-        }*/
-
-        return view('panel/GeneralDatabaseManagement.add');
+        return view('panel.GeneralDatabaseManagement.add');
     }
 
     public function insert(Request $request)
     {
-        // Check for Add permission
-        /* $PermissionRole = PermissionRoleModel::getPermission('Add GeneralDatabaseManagement', Auth::user()->role_id);
-        if (empty($PermissionRole)) {
-            abort(404);
-        }*/
-
-        // Validate the incoming data
         $validated = $request->validate([
-            'student_name' => 'required|string|max:255',
-            'student_type' => 'required|string|max:255',
-            'skills' => 'nullable|string',
-            'student_info' => 'nullable|string',
-            'file' => 'required|file|mimes:pdf,doc,docx',
-
+            'meeting_type' => 'required|in:شورای معینیت علمی,شورای رهبریت علمی',
+            'meeting_number' => 'required|integer',
+            'meeting_date' => 'date',
+            'description' => 'nullable|string',
+            'topics' => 'required|array',
+            'topics.*' => 'required|string',
+            'decisions' => 'required|array',
+            'decisions.*' => 'required|string',
+            'file' => 'nullable|file|mimes:pdf,doc,docx',
         ]);
-        $my_file = $request->file('file');
 
-        $path = $my_file->store('uploads', 'public');
+        // Combine topics and decisions into agenda items
+        $agendaItems = [];
+        foreach ($validated['topics'] as $index => $topic) {
+            $agendaItems[] = [
+                'topic' => $topic,
+                'decision' => $validated['decisions'][$index] ?? '',
+            ];
+        }
 
-        // Create the new record in the database
+        $path = null;
+        if ($request->hasFile('file')) {
+            $path = $request->file('file')->store('uploads', 'public');
+        }
+
         GeneralDatabaseManagement::create([
-            'student_name' => $validated['student_name'],
-            'student_type' => $validated['student_type'],
-            'skills' => $validated['skills'],
-            'student_info' => $validated['student_info'],
+            'meeting_type' => $validated['meeting_type'],
+            'meeting_number' => $validated['meeting_number'],
+            'meeting_date' => $validated['meeting_date'],
+            'description' => $validated['description'],
+            'agenda_items' => json_encode($agendaItems),
             'file' => $path,
-
         ]);
 
-        return redirect()->route('database.list')->with('success', 'Record added successfully!');
+        return redirect()->route('database.list')->with('success', 'Meeting record added successfully!');
     }
 
     public function edit($id)
     {
-        // Check for Edit permission
-        /* $PermissionRole = PermissionRoleModel::getPermission('Edit GeneralDatabaseManagement', Auth::user()->role_id);
-        if (empty($PermissionRole)) {
-            abort(404);
-        }*/
-
-        // Find the record to be edited
         $record = GeneralDatabaseManagement::findOrFail($id);
-        return view('panel/GeneralDatabaseManagement.edit', compact('record'));
-    }
+        $record->agenda_items = json_decode($record->agenda_items, true) ?? [];
 
+        return view('panel.GeneralDatabaseManagement.edit', compact('record'));
+    }
     public function update(Request $request, $id)
     {
-        // Check for Edit permission
-        /* $PermissionRole = PermissionRoleModel::getPermission('Edit GeneralDatabaseManagement', Auth::user()->role_id);
-        if (empty($PermissionRole)) {
-            abort(404);
-        }*/
-
-        // Validate the incoming data
         $validated = $request->validate([
-            'student_name' => 'required|string|max:255',
-            'student_type' => 'required|string|max:255',
-            'skills' => 'nullable|string',
-            'student_info' => 'nullable|string',
-            'file' => 'required|file|mimes:pdf,doc,docx',
-
+            'meeting_type' => 'required|in:شورای معینیت علمی,شورای رهبریت علمی',
+            'meeting_number' => 'required|integer',
+            'meeting_date' => 'date',
+            'description' => 'nullable|string',
+            'topics' => 'required|array',
+            'topics.*' => 'required|string',
+            'decisions' => 'required|array',
+            'decisions.*' => 'required|string',
+            'file' => 'nullable|file|mimes:pdf,doc,docx',
         ]);
-        $my_file = $request->file('file');
 
-        $path = $my_file->store('uploads', 'public');
-
-        // Find the record and update it
         $record = GeneralDatabaseManagement::findOrFail($id);
-        $record->update($validated);
 
-        return redirect()->route('database.list')->with('success', 'Record updated successfully!');
+        // Handle file upload and delete old file if a new one is uploaded
+        if ($request->hasFile('file')) {
+            if ($record->file && Storage::disk('public')->exists($record->file)) {
+                Storage::disk('public')->delete($record->file);
+            }
+            $filePath = $request->file('file')->store('uploads', 'public');
+        } else {
+            $filePath = $record->file; // keep existing file path if no new file uploaded
+        }
+
+        // Combine topics and decisions into agenda items
+        $agendaItems = [];
+        foreach ($validated['topics'] as $index => $topic) {
+            $agendaItems[] = [
+                'topic' => $topic,
+                'decision' => $validated['decisions'][$index] ?? '',
+            ];
+        }
+
+        $record->update([
+            'meeting_type' => $validated['meeting_type'],
+            'meeting_number' => $validated['meeting_number'],
+            'meeting_date' => $validated['meeting_date'],
+            'description' => $validated['description'],
+            'agenda_items' => json_encode($agendaItems),
+            'file' => $filePath,
+        ]);
+
+        return redirect()->route('database.list')->with('success', 'Meeting record updated successfully!');
     }
 
     public function delete($id)
     {
-        // Check for Delete permission
-        /* $PermissionRole = PermissionRoleModel::getPermission('Delete GeneralDatabaseManagement', Auth::user()->role_id);
-        if (empty($PermissionRole)) {
-            abort(404);
-        }*/
-
-        // Find and delete the record
         $record = GeneralDatabaseManagement::findOrFail($id);
+
+        // Delete the associated file from storage if it exists
+        if ($record->file && Storage::disk('public')->exists($record->file)) {
+            Storage::disk('public')->delete($record->file);
+        }
+
         $record->delete();
 
         return redirect()->route('database.list')->with('success', 'Record deleted successfully!');
@@ -132,16 +182,54 @@ class GeneralDatabaseManagementController extends Controller
 
     public function show($id)
     {
-        // Find the record by ID and show it
+        $record = GeneralDatabaseManagement::findOrFail($id);
+        return view('panel.GeneralDatabaseManagement.show', compact('record'));
+    }
+
+    public function showFile($id)
+    {
         $record = GeneralDatabaseManagement::findOrFail($id);
         $file = $record->file;
-        return response()->file(storage_path('app/public/' . $file));
+
+        if ($file && Storage::disk('public')->exists($file)) {
+            return response()->file(storage_path('app/public/' . $file));
+        }
+
+        abort(404, 'File not found');
     }
+
 
     public function print($id)
     {
-        // Print the record by ID
         $record = GeneralDatabaseManagement::findOrFail($id);
-        return view('panel/GeneralDatabaseManagement.print', compact('record'));
+        return view('panel.GeneralDatabaseManagement.print', compact('record'));
+    }
+
+    public function setLanguage($lang)
+    {
+        $availableLanguages = ['en', 'ps', 'fa'];
+
+        if (in_array($lang, $availableLanguages)) {
+            session()->put('locale', $lang);
+            App::setLocale($lang);
+        } else {
+            session()->put('locale', 'en');
+            App::setLocale('en');
+        }
+
+        return redirect()->back();
+    }
+    public function destroy($id)
+    {
+        $record = GeneralDatabaseManagement::findOrFail($id);
+
+        // Optional: Delete the file if exists
+        if ($record->file && Storage::disk('public')->exists($record->file)) {
+            Storage::disk('public')->delete($record->file);
+        }
+
+        $record->delete();
+
+        return redirect()->route('database.list')->with('success', __('messages.record_deleted_successfully'));
     }
 }

@@ -13,15 +13,12 @@ return new class extends Migration
     {
         Schema::create('directorateof_graduate_coordinationand_inter_sector_relations', function (Blueprint $table) {
             $table->id();
-            $table->string('responsibility_type');
+            $table->enum('category', ['روابط', 'تفاهنامه', 'SGA', 'اضافی فعالیتونه']);
             $table->string('title');
-            $table->text('description');
-            $table->text('report_frequency');
-            $table->text('report_file')->nullable();
-            $table->string('file')->nullable();
-
-            // Number or detailed list
-
+            $table->string('description');
+            $table->string('file');
+            $table->date('date');
+            $table->string('report_frequency')->nullable();
             $table->timestamps();
         });
     }

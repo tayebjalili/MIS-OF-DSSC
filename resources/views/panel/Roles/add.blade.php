@@ -2,19 +2,18 @@
 @section('content')
 
 <div class="pagetitle">
-  <h1> Add New Role</h1>
+  <h1>Add Role</h1>
 </div>
 
 <section class="section">
   <div class="row">
     <div class="col-lg-9">
 
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Add New Role</h5>
+          <h5 class="card-title">Add Role</h5>
 
           <form action="" method="post">
-            {{ csrf_field()}}
+            {{ csrf_field() }}
+
             <div class="row mb-3">
               <label for="inputText" class="col-sm-12 col-form-label">Name</label>
               <div class="col-sm-12">
@@ -22,8 +21,16 @@
               </div>
             </div>
 
+            <!-- Global Select All -->
             <div class="row mb-3">
-              <label style="display: block; margin-bottom: 20px;" for="inputText" class="col-sm-12 col-form-label"><b>Permission</b></label>
+              <label class="col-sm-12 col-form-label">
+                <input type="checkbox" id="select-all-global"> <strong>Select All Permissions</strong>
+              </label>
+            </div>
+
+            <!-- Permissions List -->
+            <div class="row mb-3">
+              <label style="display: block; margin-bottom: 20px;" class="col-sm-12 col-form-label"><b>Permission</b></label>
 
               @php
               $permissions = [
@@ -42,120 +49,121 @@
               ['id' => 8, 'name' => 'Delete Role'],
               ['id' => 9, 'name' => 'View Roles'],
               ],
-
-
               'directorate_of_coordination' => [
-              ['id' => 1, 'name' => 'View Directorate of Coordination and Student Affairs'],
-              ['id' => 2, 'name' => 'Add Directorate of Coordination and Student Affairs'],
-              ['id' => 3, 'name' => 'Edit Directorate of Coordination and Student Affairs'],
-              ['id' => 4, 'name' => 'Delete Directorate of Coordination and Student Affairs'],
+              ['id' => 10, 'name' => 'View Directorate of Coordination and Student Affairs'],
+              ['id' => 11, 'name' => 'Add Directorate of Coordination and Student Affairs'],
+              ['id' => 12, 'name' => 'Edit Directorate of Coordination and Student Affairs'],
+              ['id' => 13, 'name' => 'Delete Directorate of Coordination and Student Affairs'],
               ],
               'general_executive_management' => [
-              ['id' => 5, 'name' => 'View General Executive Management'],
-              ['id' => 6, 'name' => 'Add General Executive Management'],
-              ['id' => 7, 'name' => 'Edit General Executive Management'],
-              ['id' => 8, 'name' => 'Delete General Executive Management'],
+              ['id' => 14, 'name' => 'View General Executive Management'],
+              ['id' => 15, 'name' => 'Add General Executive Management'],
+              ['id' => 16, 'name' => 'Edit General Executive Management'],
+              ['id' => 17, 'name' => 'Delete General Executive Management'],
               ],
               'general_database_management' => [
-              ['id' => 9, 'name' => 'View General Database Management'],
-              ['id' => 10, 'name' => 'Add General Database Management'],
-              ['id' => 11, 'name' => 'Edit General Database Management'],
-              ['id' => 12, 'name' => 'Delete General Database Management'],
+              ['id' => 18, 'name' => 'View General Database Management'],
+              ['id' => 19, 'name' => 'Add General Database Management'],
+              ['id' => 20, 'name' => 'Edit General Database Management'],
+              ['id' => 21, 'name' => 'Delete General Database Management'],
               ],
               'graduate_coordination' => [
-              ['id' => 13, 'name' => 'View Directorate of Graduate Coordination and Inter-Sector Relations'],
-              ['id' => 14, 'name' => 'Add Directorate of Graduate Coordination and Inter-Sector Relations'],
-              ['id' => 15, 'name' => 'Edit Directorate of Graduate Coordination and Inter-Sector Relations'],
-              ['id' => 16, 'name' => 'Delete Directorate of Graduate Coordination and Inter-Sector Relations'],
+              ['id' => 22, 'name' => 'View Directorate of Graduate Coordination and Inter-Sector Relations'],
+              ['id' => 23, 'name' => 'Add Directorate of Graduate Coordination and Inter-Sector Relations'],
+              ['id' => 24, 'name' => 'Edit Directorate of Graduate Coordination and Inter-Sector Relations'],
+              ['id' => 25, 'name' => 'Delete Directorate of Graduate Coordination and Inter-Sector Relations'],
               ],
               'coordination_and_university_relations' => [
-              ['id' => 17, 'name' => 'View Specialist of Coordination and University Relations'],
-              ['id' => 18, 'name' => 'Add Specialist of Coordination and University Relations'],
-              ['id' => 19, 'name' => 'Edit Specialist of Coordination and University Relations'],
-              ['id' => 20, 'name' => 'Delete Specialist of Coordination and University Relations'],
+              ['id' => 26, 'name' => 'View Specialist of Coordination and University Relations'],
+              ['id' => 27, 'name' => 'Add Specialist of Coordination and University Relations'],
+              ['id' => 28, 'name' => 'Edit Specialist of Coordination and University Relations'],
+              ['id' => 29, 'name' => 'Delete Specialist of Coordination and University Relations'],
               ],
               'graduate_relations' => [
-              ['id' => 21, 'name' => 'View Specialist of Graduate Relations'],
-              ['id' => 22, 'name' => 'Add Specialist of Graduate Relations'],
-              ['id' => 23, 'name' => 'Edit Specialist of Graduate Relations'],
-              ['id' => 24, 'name' => 'Delete Specialist of Graduate Relations'],
+              ['id' => 30, 'name' => 'View Specialist of Graduate Relations'],
+              ['id' => 31, 'name' => 'Add Specialist of Graduate Relations'],
+              ['id' => 32, 'name' => 'Edit Specialist of Graduate Relations'],
+              ['id' => 33, 'name' => 'Delete Specialist of Graduate Relations'],
               ],
               'relations_with_sectoral_agencies' => [
-              ['id' => 25, 'name' => 'View Management of Relations with Sectoral Agencies'],
-              ['id' => 26, 'name' => 'Add Management of Relations with Sectoral Agencies'],
-              ['id' => 27, 'name' => 'Edit Management of Relations with Sectoral Agencies'],
-              ['id' => 28, 'name' => 'Delete Management of Relations with Sectoral Agencies'],
+              ['id' => 34, 'name' => 'View Management of Relations with Sectoral Agencies'],
+              ['id' => 35, 'name' => 'Add Management of Relations with Sectoral Agencies'],
+              ['id' => 36, 'name' => 'Edit Management of Relations with Sectoral Agencies'],
+              ['id' => 37, 'name' => 'Delete Management of Relations with Sectoral Agencies'],
               ],
               'counseling_services' => [
-              ['id' => 29, 'name' => 'View General Management of Counseling Services'],
-              ['id' => 30, 'name' => 'Add General Management of Counseling Services'],
-              ['id' => 31, 'name' => 'Edit General Management of Counseling Services'],
-              ['id' => 32, 'name' => 'Delete General Management of Counseling Services'],
+              ['id' => 38, 'name' => 'View General Management of Counseling Services'],
+              ['id' => 39, 'name' => 'Add General Management of Counseling Services'],
+              ['id' => 40, 'name' => 'Edit General Management of Counseling Services'],
+              ['id' => 41, 'name' => 'Delete General Management of Counseling Services'],
               ],
               'practical_work_social_sciences' => [
-              ['id' => 33, 'name' => 'View Specialist of Practical Work in Social Sciences and Law'],
-              ['id' => 34, 'name' => 'Add Specialist of Practical Work in Social Sciences and Law'],
-              ['id' => 35, 'name' => 'Edit Specialist of Practical Work in Social Sciences and Law'],
-              ['id' => 36, 'name' => 'Delete Specialist of Practical Work in Social Sciences and Law'],
+              ['id' => 42, 'name' => 'View Specialist of Practical Work in Social Sciences and Law'],
+              ['id' => 43, 'name' => 'Add Specialist of Practical Work in Social Sciences and Law'],
+              ['id' => 44, 'name' => 'Edit Specialist of Practical Work in Social Sciences and Law'],
+              ['id' => 45, 'name' => 'Delete Specialist of Practical Work in Social Sciences and Law'],
               ],
               'practical_work_natural_sciences' => [
-              ['id' => 37, 'name' => 'View Management of Practical Work in Natural Sciences and Science'],
-              ['id' => 38, 'name' => 'Add Management of Practical Work in Natural Sciences and Science'],
-              ['id' => 39, 'name' => 'Edit Management of Practical Work in Natural Sciences and Science'],
-              ['id' => 40, 'name' => 'Delete Management of Practical Work in Natural Sciences and Science'],
+              ['id' => 46, 'name' => 'View Management of Practical Work in Natural Sciences and Science'],
+              ['id' => 47, 'name' => 'Add Management of Practical Work in Natural Sciences and Science'],
+              ['id' => 48, 'name' => 'Edit Management of Practical Work in Natural Sciences and Science'],
+              ['id' => 49, 'name' => 'Delete Management of Practical Work in Natural Sciences and Science'],
               ],
               'employment_specialist' => [
-              ['id' => 41, 'name' => 'View Employment Specialist'],
-              ['id' => 42, 'name' => 'Add Employment Specialist'],
-              ['id' => 43, 'name' => 'Edit Employment Specialist'],
-              ['id' => 44, 'name' => 'Delete Employment Specialist'],
+              ['id' => 50, 'name' => 'View Employment Specialist'],
+              ['id' => 51, 'name' => 'Add Employment Specialist'],
+              ['id' => 52, 'name' => 'Edit Employment Specialist'],
+              ['id' => 53, 'name' => 'Delete Employment Specialist'],
               ],
               'mental_health_specialist' => [
-              ['id' => 45, 'name' => 'View Mental Health Specialist'],
-              ['id' => 46, 'name' => 'Add Mental Health Specialist'],
-              ['id' => 47, 'name' => 'Edit Mental Health Specialist'],
-              ['id' => 48, 'name' => 'Delete Mental Health Specialist'],
+              ['id' => 54, 'name' => 'View Mental Health Specialist'],
+              ['id' => 55, 'name' => 'Add Mental Health Specialist'],
+              ['id' => 56, 'name' => 'Edit Mental Health Specialist'],
+              ['id' => 57, 'name' => 'Delete Mental Health Specialist'],
               ],
               'academic_mentor' => [
-              ['id' => 49, 'name' => 'View Academic Mentor for Medical Sciences and Practical Projects'],
-              ['id' => 50, 'name' => 'Add Academic Mentor for Medical Sciences and Practical Projects'],
-              ['id' => 51, 'name' => 'Edit Academic Mentor for Medical Sciences and Practical Projects'],
-              ['id' => 52, 'name' => 'Delete Academic Mentor for Medical Sciences and Practical Projects'],
+              ['id' => 58, 'name' => 'View Academic Mentor for Medical Sciences and Practical Projects'],
+              ['id' => 59, 'name' => 'Add Academic Mentor for Medical Sciences and Practical Projects'],
+              ['id' => 60, 'name' => 'Edit Academic Mentor for Medical Sciences and Practical Projects'],
+              ['id' => 61, 'name' => 'Delete Academic Mentor for Medical Sciences and Practical Projects'],
               ],
               'cultural_social_services' => [
-              ['id' => 53, 'name' => 'View Directorate of Cultural, Social, and Sports Services'],
-              ['id' => 54, 'name' => 'Add Directorate of Cultural, Social, and Sports Services'],
-              ['id' => 55, 'name' => 'Edit Directorate of Cultural, Social, and Sports Services'],
-              ['id' => 56, 'name' => 'Delete Directorate of Cultural, Social, and Sports Services'],
+              ['id' => 62, 'name' => 'View Directorate of Cultural Social and Sports Services'],
+              ['id' => 63, 'name' => 'Add Directorate of Cultural Social and Sports Services'],
+              ['id' => 64, 'name' => 'Edit Directorate of Cultural Social and Sports Services'],
+              ['id' => 65, 'name' => 'Delete Directorate of Cultural Social and Sports Services'],
               ],
               'affairs_and_sports' => [
-              ['id' => 57, 'name' => 'View Specialist of Affairs and Sports'],
-              ['id' => 58, 'name' => 'Add Specialist of Affairs and Sports'],
-              ['id' => 59, 'name' => 'Edit Specialist of Affairs and Sports'],
-              ['id' => 60, 'name' => 'Delete Specialist of Affairs and Sports'],
+              ['id' => 66, 'name' => 'View Specialist of Affairs and Sports'],
+              ['id' => 67, 'name' => 'Add Specialist of Affairs and Sports'],
+              ['id' => 68, 'name' => 'Edit Specialist of Affairs and Sports'],
+              ['id' => 69, 'name' => 'Delete Specialist of Affairs and Sports'],
               ],
               'cultural_services' => [
-              ['id' => 61, 'name' => 'View Specialist of Cultural Services'],
-              ['id' => 62, 'name' => 'Add Specialist of Cultural Services'],
-              ['id' => 63, 'name' => 'Edit Specialist of Cultural Services'],
-              ['id' => 64, 'name' => 'Delete Specialist of Cultural Services'],
+              ['id' => 70, 'name' => 'View Specialist of Cultural Services'],
+              ['id' => 71, 'name' => 'Add Specialist of Cultural Services'],
+              ['id' => 72, 'name' => 'Edit Specialist of Cultural Services'],
+              ['id' => 73, 'name' => 'Delete Specialist of Cultural Services'],
               ],
               'skill_development' => [
-              ['id' => 65, 'name' => 'View Specialist of Skill Development'],
-              ['id' => 66, 'name' => 'Add Specialist of Skill Development'],
-              ['id' => 67, 'name' => 'Edit Specialist of Skill Development'],
-              ['id' => 68, 'name' => 'Delete Specialist of Skill Development'],
+              ['id' => 74, 'name' => 'View Specialist of Skill Development'],
+              ['id' => 75, 'name' => 'Add Specialist of Skill Development'],
+              ['id' => 76, 'name' => 'Edit Specialist of Skill Development'],
+              ['id' => 77, 'name' => 'Delete Specialist of Skill Development'],
               ],
               ];
               @endphp
 
               @foreach($permissions as $slug => $permissionGroup)
               <div class="mb-2">
-                <strong>{{ ucfirst($slug) }}</strong>
+                <strong>
+                  {{ ucfirst(str_replace('_', ' ', $slug)) }}
+                  <input type="checkbox" class="select-all-group" data-group="{{ $slug }}"> Select All
+                </strong>
                 <div class="form-check">
                   @foreach($permissionGroup as $permission)
                   <label class="form-check-label">
-                    <input type="checkbox" class="form-check-input" value="{{ $permission['id'] }}" name="permission_id[]"> {{ $permission['name'] }}
+                    <input type="checkbox" class="form-check-input permission-checkbox group-{{ $slug }}" value="{{ $permission['id'] }}" name="permission_id[]"> {{ $permission['name'] }}
                   </label><br>
                   @endforeach
                 </div>
@@ -163,20 +171,39 @@
               @endforeach
             </div>
 
-
             <div class="row mb-3">
               <div class="col-sm-12">
                 <button type="submit" class="btn btn-primary">Submit</button>
               </div>
             </div>
-
           </form>
 
-        </div>
-      </div>
-
     </div>
-
-
+  </div>
 </section>
+
+@push('scripts')
+<script>
+  document.getElementById('select-all-global').addEventListener('change', function() {
+    let isChecked = this.checked;
+    document.querySelectorAll('.permission-checkbox').forEach(checkbox => {
+      checkbox.checked = isChecked;
+    });
+    document.querySelectorAll('.select-all-group').forEach(groupCheckbox => {
+      groupCheckbox.checked = isChecked;
+    });
+  });
+
+  document.querySelectorAll('.select-all-group').forEach(groupCheckbox => {
+    groupCheckbox.addEventListener('change', function() {
+      let group = this.getAttribute('data-group');
+      let isChecked = this.checked;
+      document.querySelectorAll('.group-' + group).forEach(checkbox => {
+        checkbox.checked = isChecked;
+      });
+    });
+  });
+</script>
+@endpush
+
 @endsection

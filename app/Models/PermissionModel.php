@@ -4,10 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
+use App\Traits\Sortable;
 
 class PermissionModel extends Model
-{
+{use Sortable;
     use HasFactory;
 
     protected $table = 'permissions';

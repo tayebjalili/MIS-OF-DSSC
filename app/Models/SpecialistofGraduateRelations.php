@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use App\Traits\Sortable;
 class SpecialistofGraduateRelations extends Model
-{
+{use Sortable;
     use HasFactory;
 
     protected $fillable = [
@@ -16,13 +16,14 @@ class SpecialistofGraduateRelations extends Model
         'university',
         'faculty',
         'department',
-        'grades',
+        'id_conqor',
         'percentage',
-        'year',
-        'final_percentage',
+        'start_year',
+        'graduated_year',
+        'observations',
         'phone_number',
-        'photo',
-        'looks',
+        'email',
         'file',
+
     ];
 }

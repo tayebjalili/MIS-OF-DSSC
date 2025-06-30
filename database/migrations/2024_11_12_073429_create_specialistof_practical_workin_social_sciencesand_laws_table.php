@@ -13,11 +13,19 @@ return new class extends Migration
     {
         Schema::create('specialistof_practical_workin_social_sciencesand_laws', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->string('faculty'); // Law, Journalism, Economics, etc.
-            $table->date('date');
-            $table->text('report_type');
-            $table->text('description');
+            $table->string('job_type'); // e.g., psychological, career, practical work, etc.
+            $table->string('description');
+            $table->string('student_name');
+            $table->string('father_name');
+            $table->string('university_name');
+            $table->string('faculty');
+            $table->string('internship_company');
+            $table->string('start_date');
+            $table->string('end_date');
+            $table->enum('job_time', ['Part-Time', 'Full-Time']);
+            $table->string('report_type'); // daily, weekly, monthly, yearly
+            $table->string('content');
+            $table->string('report_date');
             $table->string('file')->nullable();
             $table->timestamps();
         });

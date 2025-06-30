@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('activity_name');
             $table->date('activity_date');
             $table->string('report_type');
-            $table->text('description');
+            $table->string('description');
             $table->string('department')->nullable();
             $table->string('file')->nullable(); // For file uploads (PDF, DOCX, Excel)
             $table->timestamps();

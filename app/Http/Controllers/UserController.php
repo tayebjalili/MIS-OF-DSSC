@@ -8,35 +8,66 @@ use App\Models\PermissionModel;
 use App\Models\PermissionRoleModel;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-//use Illuminate\Support\Facades\Auth;
 
-class UserController extends Controller
+use Illuminate\Support\Facades\App;
+use App\Http\Controllers\BaseController;
+
+class UserController extends  BaseController
 {
-    public function list()
-    {
-        /* $PermissionRole = PermissionRoleModel::getPermission('User', Auth::user()->role_id);
-        if (empty($PermissionRole)) {
-            abort(404);
-        }
+    // public function list()
+    // {
+    //
 
+    //     // $data['getRecord'] = User::getRecord();
+    //     $data['getRecord'] = User::getRecord();
+    //     return view('panel.user.list', $data);
+    // }
+  public function list(Request $request)
+{
+    $search = $request->input('search');
+    $sortBy = $request->input('sort_by', 'id'); // default sort column
+    $order = $request->input('order', 'asc');  // default order
 
-        $data['PermissionAdd'] = PermissionRoleModel::getPermission('Add User', Auth::user()->role_id);
-        $data['PermissionEdit'] = PermissionRoleModel::getPermission('Edit User', Auth::user()->role_id);
-        $data['PermissionDelete'] = PermissionRoleModel::getPermission('Delete User', Auth::user()->role_id);*/
-
-
-
-        $data['getRecord'] = User::getRecord();
-        return view('panel.user.list', $data);
+    $allowedSorts = ['id', 'name', 'email']; // whitelist to prevent SQL injection
+    if (!in_array($sortBy, $allowedSorts)) {
+        $sortBy = 'id';
     }
+    if (!in_array(strtolower($order), ['asc', 'desc'])) {
+        $order = 'asc';
+    }
+
+    $query = User::query();
+
+    if ($search) {
+        $query->where(function ($q) use ($search) {
+            $q->where('name', 'like', "%$search%")
+              ->orWhere('email', 'like', "%$search%")
+              ->orWhere('id', 'like', "%$search%");
+        });
+    }
+
+    // Apply sorting
+    $query->orderBy($sortBy, $order);
+
+    $data['getRecord'] = $query->paginate(10)->appends([
+        'search' => $search,
+        'sort_by' => $sortBy,
+        'order' => $order,
+    ]);
+
+    // Send current sorting info to the view
+    $data['currentSortBy'] = $sortBy;
+    $data['currentOrder'] = $order;
+    $data['search'] = $search;
+
+    return view('panel.user.list', $data);
+}
+
+
 
     public function add()
     {
-        /* $PermissionRole = PermissionRoleModel::getPermission('Add User', Auth::user()->role_id);
 
-        if (empty($PermissionRole)) {
-            abort(404);
-        }*/
         $data['getRole'] = RoleModel::getRecord();
 
         return view('panel.user.add', $data);
@@ -44,23 +75,16 @@ class UserController extends Controller
 
     public function edit($id)
     {
-        /* $PermissionRole = PermissionRoleModel::getPermission('Edit User', Auth::user()->role_id);
 
-        if (empty($PermissionRole)) {
-            abort(404);
-        }*/
 
-        $data['getRecord'] = User::getSingel($id);
+        $data['getRecord'] = User::findOrFail($id);
+
         $data['getRole'] = RoleModel::getRecord();
         return view('panel.user.edit', $data);
     }
     public function insert(Request $request)
     {
-        /* $PermissionRole = PermissionRoleModel::getPermission('Add User', Auth::user()->role_id);
 
-        if (empty($PermissionRole)) {
-            abort(404);
-        }*/
         request()->validate([
             'email' => 'required|email|unique:users',
         ]);
@@ -76,11 +100,7 @@ class UserController extends Controller
     }
     public function update($id, Request $request)
     {
-        /*$PermissionRole = PermissionRoleModel::getPermission('Edit User', Auth::user()->role_id);
 
-        if (empty($PermissionRole)) {
-            abort(404);
-        }*/
         $user = User::getSingle($id);
         $user->name = trim($request->name);
         if (!empty($request->password)) {
@@ -93,13 +113,23 @@ class UserController extends Controller
     }
     public function delete($id)
     {
-        /*$PermissionRole = PermissionRoleModel::getPermission('Delete User', Auth::user()->role_id);
 
-        if (empty($PermissionRole)) {
-            abort(404);
-        }*/
         $user = User::getSingle($id);
         $user->delete();
         return redirect('panel/user')->with('success', 'User sucessfully deleted');
+    }
+    public function setLanguage($lang)
+    {
+        $availableLanguages = ['en', 'ps', 'fa'];
+
+        if (in_array($lang, $availableLanguages)) {
+            session()->put('locale', $lang);
+            App::setLocale($lang);
+        } else {
+            session()->put('locale', 'en');
+            App::setLocale('en');
+        }
+
+        return redirect()->back();
     }
 }

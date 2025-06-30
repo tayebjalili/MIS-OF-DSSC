@@ -4,18 +4,26 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use App\Traits\Sortable;
 class AcademicMentorforMedicalSciencesandPracticalProjects extends Model
 {
+    use Sortable;
     use HasFactory;
     protected $fillable = [
         'id',
-        'title',
-        'objective',
-        'specialized_duties',
-        'managerial_duties',
-        'coordination_duties',
-        'summary',
+        'job_type',
+        'description',
+        'student_name',
+        'father_name',
+        'faculty',
+        'university_name',
+        'internship_company',
+        'start_date',
+        'end_date',
+        'job_time',
+        'report_type',
+        'content',
+        'report_date',
         'file',
 
     ];
